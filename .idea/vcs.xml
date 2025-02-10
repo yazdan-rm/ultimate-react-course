@@ -2,6 +2,6 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/01-pure-react/create-reate-app-cli/pizza-menu" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/01-pure-react/create-react-app-cli/pizza-menu" vcs="Git" />
   </component>
 </project>
