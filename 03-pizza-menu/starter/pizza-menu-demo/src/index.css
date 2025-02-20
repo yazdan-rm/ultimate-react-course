@@ -91,6 +91,7 @@ body {
     font-weight: 500;
 }
 
+/* target <p> direct child of .menu */
 .menu > p {
     font-size: 1.5rem;
     text-align: center;
@@ -142,11 +143,12 @@ body {
 
 .pizza.sold-out {
     color: #888;
+    filter: blur(1px);
 }
 
 .pizza.sold-out img {
-    filter: grayscale();
-    opacity: 0.8;
+    filter: grayscale(1);
+    /*opacity: 0.8;*/
 }
 
 /* *************** */
@@ -176,6 +178,7 @@ body {
 
 .btn:hover {
     background-color: #e9bb24;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 /*
