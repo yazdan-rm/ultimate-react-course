@@ -30,6 +30,8 @@ h1 {
 .avatar {
     width: 100%;
     display: block;
+    aspect-ratio: 1;
+    align-self: start;
 }
 
 .data {
