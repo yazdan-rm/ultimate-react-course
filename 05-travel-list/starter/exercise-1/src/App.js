@@ -1,4 +1,5 @@
 import "./styles.css";
+import {useState} from "react";
 
 export default function App() {
     return (
@@ -8,7 +9,7 @@ export default function App() {
     );
 }
 
-const questions = [
+let questions = [
     {
         id: 3457,
         question: "What language is React based on?",
@@ -43,9 +44,21 @@ const questions = [
 ];
 
 function FlashCards() {
+    const [selectedId, setSelectedId] = useState(null);
+
+    function handleClick(id) {
+        setSelectedId(id !== selectedId ? id : null);
+        if (id === selectedId) questions = questions.sort(() => Math.random() - 0.5);
+    }
+
     return (
         <div className="flashcards">
-            TODO
+            {questions.map((question) =>
+                <div key={question.id}
+                     onClick={() => handleClick(question.id)}
+                     className={question.id === selectedId ? "selected" : ""}>
+                    <p>{question.id === selectedId ? question.answer : question.question}</p>
+                </div>)}
         </div>
     );
 }
