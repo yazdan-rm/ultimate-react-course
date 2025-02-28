@@ -31,6 +31,7 @@ body {
   column-gap: 24px;
   row-gap: 32px;
   align-items: center;
+  transition: all 0.3s ease;
 }
 
 .number {
