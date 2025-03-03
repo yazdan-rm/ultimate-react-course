@@ -1,6 +1,6 @@
 import "../styles.css";
 import React from "react";
-import AccordionItem from "./AccordionItem";
+import Accordion from "./Accordion";
 
 const faqs = [{
   title: "Where are these chairs assembled?",
@@ -19,9 +19,5 @@ export default function App() {
   </div>);
 }
 
-function Accordion({data}) {
-  return (<div className="accordion">
-    {data.map((item, index) => (<AccordionItem key={index} num={index} title={item.title} text={item.text}/>))}
-  </div>);
-}
+
 
