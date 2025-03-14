@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import './App.css'
 
 export default function App() {
   const [inputValue, setInputValue] = useState('');
@@ -27,6 +28,7 @@ export default function App() {
 
   return (
       <div>
+        <p>{output ? output : 'OUTPUT'}</p>
         <input type="text"
                value={inputValue}
                onChange={e => setInputValue(e.target.value)}/>
@@ -44,9 +46,6 @@ export default function App() {
           <option value="CAD">CAD</option>
           <option value="INR">INR</option>
         </select>
-        <p>{output ? output : 'OUTPUT'}</p>
       </div>
   )
 }
-
-// https://api.frankfurter.app/latest?amount=100&from=EUR&to=USD

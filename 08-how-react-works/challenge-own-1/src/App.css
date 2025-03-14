@@ -1,4 +1,53 @@
-.App {
+body {
   font-family: sans-serif;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #3D8D7A;
+  border: none;
+}
+
+input {
+  background-color: #B3D8A8;
+  width: 20em;
+  height: 2em;
+  padding: .25em 0.5em;
+  border-radius: 5px;
+  font-size: 1em;
+  font-weight: bold;
+  display: block;
+  border: none;
+  box-shadow: 0 0 12px 2px #B3D8A8;
+  margin-bottom: 1em;
+}
+
+input:focus-visible {
+  border: none;
+}
+
+
+select {
+  border: none;
+  border-radius: 5px;
+  background-color: #A3D1C6;
+  width: 10em;
+  height: 2em;
+  text-align: center;
+  margin: 0 5px;
+  font-size: 1em;
+  font-weight: bold;
+}
+
+p {
+  margin-bottom: 50px;
+  font-size: 1em;
+  text-align: center;
+  font-weight: bold;
+  padding: 2em;
+  box-shadow: 0 0 12px 2px #B3D8A8;
+  border-radius: 5px;
+  background-color: #FBFFE4;
 }
