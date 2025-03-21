@@ -22,7 +22,6 @@ function formatDay(dateStr) {
 }
 
 export default class App extends React.Component {
-
   state = {
     location: '',
     isLoading: false,
@@ -97,7 +96,6 @@ class Input extends React.Component {
 }
 
 class Weather extends React.Component {
-
   componentWillUnmount() {
     console.log('componentWillUnmount');
   }
