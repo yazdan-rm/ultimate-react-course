@@ -24,19 +24,16 @@ function formatDay(dateStr) {
 export default class App extends React.Component {
 
   state = {
-    location: 'tehran',
+    location: '',
     isLoading: false,
     displayLocation: '',
     weather: {}
   };
 
-  // constructor(props) {
-  //   super(props);
-  // this.fetchWeather = this.fetchWeather.bind(this);
-  // }
 
-  // async fetchWeather() {
   fetchWeather = async () => {
+    if (this.state.location.length < 2) return this.setState({weather: {}});
+
     try {
       this.setState({isLoading: true});
       // 1) Getting location (geocoding)
@@ -56,7 +53,7 @@ export default class App extends React.Component {
       const weatherData = await weatherRes.json();
       this.setState({weather: weatherData.daily});
     } catch (err) {
-      console.err(err);
+      console.error(err);
     } finally {
       this.setState({isLoading: false})
     }
@@ -64,12 +61,24 @@ export default class App extends React.Component {
 
   setLocation = (e) => this.setState({location: e.target.value});
 
+  // useEffect({..}, [])
+  componentDidMount() {
+    this.setState({location: localStorage.getItem("location") || ''});
+  }
+
+  // useEffect({...}, [location]) works on mount and rerender but below code just rerender
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.location !== prevState.location) {
+      this.fetchWeather();
+
+      localStorage.setItem('location', this.state.location);
+    }
+  }
+
   render() {
     return (<div className={'app'}>
       <h1>Classy Weather</h1>
       <Input location={this.state.location} onChangeLocation={this.setLocation}/>
-      <button onClick={this.fetchWeather}>Get Weather</button>
-
       {this.state.isLoading && <p className={'loader'}>Loading...</p>}
       {this.state.weather.weathercode && <Weather weather={this.state.weather} location={this.state.location}/>}
     </div>)
@@ -88,6 +97,10 @@ class Input extends React.Component {
 }
 
 class Weather extends React.Component {
+
+  componentWillUnmount() {
+    console.log('componentWillUnmount');
+  }
 
   render() {
     const {
