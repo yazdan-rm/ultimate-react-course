@@ -1,0 +1,51 @@
+:root {
+  --color-darkest: #343a40;
+  --color-dark: #495057;
+  --color-medium: #ced4da;
+  --color-light: #f1f3f5;
+
+  --color-theme: #1098ad;
+  --color-theme-darker: #09505a;
+  --color-accent: #ffa94d;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+h1, p {
+  margin: 20px 0;
+}
+
+.btn {
+  width: 22em;
+  height: 3em;
+  background-color: var(--color-theme);
+  color: var(--color-light);
+  border: none;
+  border-radius: 10px;
+  font-size: 1.2em;
+  transition: all 0.25s;
+  cursor: pointer;
+}
+
+.btn:not([disabled]):hover {
+  box-shadow: rgba(0, 0, 0, 0.16) 0 3px 6px, rgba(0, 0, 0, 0.23) 0 3px 6px;
+}
+
+.btn:not([disabled]):active {
+  background-color: var(--color-theme-darker);
+}
+
+.disabled {
+  background-color: var(--color-accent);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
