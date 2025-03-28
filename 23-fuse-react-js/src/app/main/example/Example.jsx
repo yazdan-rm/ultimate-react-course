@@ -7,7 +7,6 @@ const Root = styled(FusePageSimple)(({ theme }) => ({
   "& .FusePageSimple-header": {
     backgroundColor: theme.palette.background.paper,
     borderBottomWidth: 1,
-    fontFamily: "IranianSans",
     borderStyle: "solid",
     borderColor: theme.palette.divider,
   },

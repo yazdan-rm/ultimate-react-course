@@ -83,8 +83,7 @@ export function getParsedQuerySettings() {
 export const defaultThemeOptions = {
   typography: {
     fontFamily: [
-      "IranianSans",
-      "IranianSansBold",
+      "yekan",
       "Inter var",
       "Roboto",
       '"Helvetica"',

@@ -668,7 +668,6 @@ module.exports = {
     },
     fontFamily: {
       sans: [
-        "IranianSans",
         "Inter var",
         "Roboto",
         "-apple-system",
@@ -685,7 +684,6 @@ module.exports = {
         '"Noto Color Emoji"',
       ],
       serif: [
-        "IranianSans",
         "ui-serif",
         "Georgia",
         "Cambria",
