@@ -17,7 +17,7 @@ const navigationConfig = [
     title: "Example",
     translate: "EXAMPLE",
     type: "item",
-    icon: "heroicons-outline:star",
+    icon: "heroicons-outline:academic-cap",
     url: "example",
   },
 ];

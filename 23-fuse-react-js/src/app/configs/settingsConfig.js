@@ -17,7 +17,11 @@ const settingsConfig = {
      * The config property defines the layout configuration for the application.
      * Check out default layout configs at app/theme-layouts for example app/theme-layouts/layout1/Layout1Config.js
      */
-    config: {}, // checkout default layout configs at app/theme-layouts for example  app/theme-layouts/layout1/Layout1Config.js
+    config: {
+      footer: {
+        display: false,
+      },
+    }, // checkout default layout configs at app/theme-layouts for example  app/theme-layouts/layout1/Layout1Config.js
   },
   /**
    * The customScrollbars property defines whether or not to use custom scrollbars in the application.

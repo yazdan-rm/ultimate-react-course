@@ -156,7 +156,6 @@ function JwtAuthProvider(props) {
   };
   // Refactor signIn function
   const signIn = (credentials) => {
-    console.log(credentials);
     return handleRequest(
       config.signInUrl,
       credentials,
