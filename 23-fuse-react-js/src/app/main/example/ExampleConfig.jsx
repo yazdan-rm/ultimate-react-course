@@ -21,6 +21,7 @@ const ExampleConfig = {
     {
       path: "example",
       element: <Example />,
+      auth: ["admin"],
     },
   ],
 };
