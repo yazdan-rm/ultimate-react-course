@@ -1,5 +1,6 @@
 const locale = {
-	APPLICATIONS: 'Applications',
-	EXAMPLE: 'Example'
+  APPLICATIONS: "Applications",
+  COURSES: "Educational courses",
+  CREATE: "Course enrollment",
 };
 export default locale;
