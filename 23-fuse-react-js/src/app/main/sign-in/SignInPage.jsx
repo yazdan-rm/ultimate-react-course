@@ -4,29 +4,8 @@ import Paper from "@mui/material/Paper";
 import CardContent from "@mui/material/CardContent";
 import JwtSignInForm from "../../auth/services/jwt/components/JwtSignInForm.jsx";
 
-const tabs = [
-  {
-    id: "jwt",
-    title: "JWT",
-    logo: "assets/images/logo/jwt.svg",
-    logoClass: "h-40 p-4 bg-black rounded-12",
-  },
-  {
-    id: "firebase",
-    title: "Firebase",
-    logo: "assets/images/logo/firebase.svg",
-    logoClass: "h-40",
-  },
-  {
-    id: "aws",
-    title: "AWS",
-    logo: "assets/images/logo/aws-amplify.svg",
-    logoClass: "h-40",
-  },
-];
-
 /**
- * The sign in page.
+ * The signIn page.
  */
 function SignInPage() {
   return (
@@ -95,17 +74,22 @@ function SignInPage() {
 
         <div className="relative z-10 w-full max-w-2xl">
           <div className="text-7xl font-bold leading-none text-gray-100">
-            <div>سامانه جامع گلستان</div>
+            <Typography
+              variant="h2"
+              className="font-extrabold leading-tight tracking-tight"
+            >
+              سامانه جامع گلستان
+            </Typography>
           </div>
-          <div className="mt-24 text-lg leading-6 tracking-tight text-gray-400">
+          <Typography className="mt-24 text-lg leading-6 tracking-tight text-gray-400">
             سامانه گلستان، یکپارچه‌ترین سیستم مدیریت اطلاعات آموزشی، پژوهشی و
             دانشجویی برای دانشگاه‌های ایران. با ورود به این سامانه، به تمامی
             خدمات آموزشی، مالی و پژوهشی خود به‌صورت آنلاین دسترسی خواهید داشت.
-          </div>
+          </Typography>
           <div className="mt-32 flex items-center">
-            <div className="ml-16 font-medium tracking-tight text-gray-400">
+            <Typography className="ml-16 font-medium tracking-tight text-gray-400">
               به جامعه‌ی گلستان بپیوندید و از امکانات پیشرفته‌ی ما استفاده کنید.
-            </div>
+            </Typography>
           </div>
         </div>
       </Box>
