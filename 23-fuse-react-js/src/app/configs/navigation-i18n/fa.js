@@ -1,6 +1,6 @@
 const locale = {
   APPLICATIONS: "اپلیکیشن",
   COURSES: "دوره های درسی",
-  CREATE: "ایجاد درس",
+  CREATE_NEW_COURSE: "تعریف دوره جدید",
 };
 export default locale;

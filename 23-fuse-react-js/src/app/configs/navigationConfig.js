@@ -14,15 +14,15 @@ const navigationConfig = [
     subtitle: "فرایند های دوره های درسی",
     translate: "COURSES",
     type: "group",
+    auth: ["admin"],
     children: [
       {
         id: "courses.create",
-        title: "Create",
-        translate: "CREATE",
+        title: "Create New Course",
+        translate: "CREATE_NEW_COURSE",
         type: "item",
         icon: "heroicons-outline:plus-circle",
         url: "/example",
-        auth: ["admin"],
       },
     ],
   },
