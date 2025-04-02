@@ -150,7 +150,7 @@ function Course() {
             slotProps={{
               textField: {
                 id: "exam-date",
-                label: "تاریخ امتحان",
+                label: "زمان امتحان",
                 variant: "outlined",
               },
               actionBar: {
