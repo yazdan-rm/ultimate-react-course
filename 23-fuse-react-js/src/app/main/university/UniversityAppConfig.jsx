@@ -10,7 +10,6 @@ const UniversityAppConfig = {
         {
           path: "course",
           element: <Course />,
-          auth: ["admin"],
         },
       ],
     },
