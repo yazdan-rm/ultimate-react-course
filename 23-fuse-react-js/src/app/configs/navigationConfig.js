@@ -22,7 +22,7 @@ const navigationConfig = [
         translate: "CREATE_NEW_COURSE",
         type: "item",
         icon: "heroicons-outline:plus-circle",
-        url: "/example",
+        url: "/app/university/course",
       },
     ],
   },
