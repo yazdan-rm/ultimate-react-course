@@ -9,6 +9,14 @@ i18next.addResourceBundle("fa", "navigation", fa);
  */
 const navigationConfig = [
   {
+    id: "dashboard",
+    title: "Dashboard",
+    translate: "داشبورد",
+    type: "item",
+    icon: "heroicons-solid:clipboard-list",
+    url: "/",
+  },
+  {
     id: "courses",
     title: "Courses",
     subtitle: "فرایند های دوره های درسی",
@@ -17,11 +25,11 @@ const navigationConfig = [
     auth: ["admin"],
     children: [
       {
-        id: "courses.create",
+        id: "courses-create",
         title: "Create New Course",
         translate: "CREATE_NEW_COURSE",
         type: "item",
-        icon: "heroicons-outline:plus-circle",
+        icon: "heroicons-solid:plus-circle",
         url: "/app/university/course",
       },
     ],
