@@ -20,6 +20,7 @@
         "@reduxjs/toolkit": "2.2.5",
         "ag-grid-community": "^33.2.1",
         "ag-grid-react": "^33.2.1",
+        "@ag-grid-community/locale": "~33.2.1",
         "autosuggest-highlight": "3.3.4",
         "aws-amplify": "6.3.6",
         "axios": "1.7.2",

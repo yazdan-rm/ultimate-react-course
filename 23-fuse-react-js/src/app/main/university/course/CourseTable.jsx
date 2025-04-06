@@ -3,21 +3,32 @@ import { useCallback, useMemo, useState } from "react";
 import Paper from "@mui/material/Paper";
 import {
   InfiniteRowModelModule,
+  LocaleModule,
   ModuleRegistry,
+  PaginationModule,
   themeQuartz,
   ValidationModule,
 } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { useTheme } from "@mui/styles";
+import { AG_GRID_LOCALE_IR } from "@ag-grid-community/locale";
 
-ModuleRegistry.registerModules([InfiniteRowModelModule, ValidationModule]);
+ModuleRegistry.registerModules([
+  InfiniteRowModelModule,
+  PaginationModule,
+  ValidationModule,
+  LocaleModule,
+]);
 
 function CourseTable() {
   const containerStyle = useMemo(() => ({ width: "100%", height: "52vh" }), []);
-  const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
-  const userTheme = useTheme();
+  const gridStyle = useMemo(
+    () => ({ height: "100%", width: "100%", dir: "rtl" }),
+    [],
+  );
 
-  console.log(userTheme.palette.primary.main);
+  const localeText = useMemo(() => AG_GRID_LOCALE_IR, []);
+  const userTheme = useTheme();
 
   const myTheme = themeQuartz.withParams({
     headerTextColor: "#fff",
@@ -116,8 +127,11 @@ function CourseTable() {
             maxConcurrentDatasourceRequests={1}
             infiniteInitialRowCount={1000}
             maxBlocksInCache={10}
+            pagination={true}
+            // getRowId={getRowId}
             onGridReady={onGridReady}
             theme={theme}
+            localeText={localeText}
           />
         </div>
       </div>
