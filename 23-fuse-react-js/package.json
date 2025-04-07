@@ -4,6 +4,7 @@
     "private": true,
     "type": "module",
     "dependencies": {
+        "@ag-grid-community/locale": "~33.2.1",
         "@aws-amplify/auth": "6.3.5",
         "@aws-amplify/ui-react": "6.1.12",
         "@emotion/cache": "11.11.0",
@@ -20,7 +21,6 @@
         "@reduxjs/toolkit": "2.2.5",
         "ag-grid-community": "^33.2.1",
         "ag-grid-react": "^33.2.1",
-        "@ag-grid-community/locale": "~33.2.1",
         "autosuggest-highlight": "3.3.4",
         "aws-amplify": "6.3.6",
         "axios": "1.7.2",
@@ -36,6 +36,7 @@
         "framer-motion": "11.2.10",
         "history": "5.3.0",
         "i18next": "23.11.5",
+        "jalaali-js": "^1.2.8",
         "jwt-decode": "3.1.2",
         "lodash": "4.17.21",
         "material-react-table": "2.13.0",

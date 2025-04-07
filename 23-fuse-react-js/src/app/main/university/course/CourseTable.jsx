@@ -2,30 +2,26 @@ import * as React from "react";
 import { useCallback, useMemo, useState } from "react";
 import Paper from "@mui/material/Paper";
 import {
-  InfiniteRowModelModule,
-  LocaleModule,
+  AllCommunityModule,
   ModuleRegistry,
-  PaginationModule,
   themeQuartz,
-  ValidationModule,
 } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
 import { useTheme } from "@mui/styles";
 import { AG_GRID_LOCALE_IR } from "@ag-grid-community/locale";
+import { useLazyGetCoursesQuery } from "../UniversityApi.js";
+import { useAppDispatch } from "app/store/hooks.js";
+import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice.js";
+import { getGenderText, toShamsiDate } from "../../../utils/UmsUtils.js";
+import CourseStatus from "../../../utils/CourseStatus.jsx";
 
-ModuleRegistry.registerModules([
-  InfiniteRowModelModule,
-  PaginationModule,
-  ValidationModule,
-  LocaleModule,
-]);
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 function CourseTable() {
   const containerStyle = useMemo(() => ({ width: "100%", height: "52vh" }), []);
-  const gridStyle = useMemo(
-    () => ({ height: "100%", width: "100%", dir: "rtl" }),
-    [],
-  );
+  const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
+  const [trigger] = useLazyGetCoursesQuery();
+  const dispatch = useAppDispatch();
 
   const localeText = useMemo(() => AG_GRID_LOCALE_IR, []);
   const userTheme = useTheme();
@@ -35,6 +31,7 @@ function CourseTable() {
     headerBackgroundColor: userTheme.palette.primary.main,
     oddRowBackgroundColor: userTheme.palette.background.default,
     headerColumnResizeHandleColor: userTheme.palette.primary.light,
+    fontFamily: "yekan",
   });
 
   const theme = useMemo(() => {
@@ -42,12 +39,9 @@ function CourseTable() {
   }, [userTheme]);
 
   const [columnDefs, setColumnDefs] = useState([
-    // this row shows the row index, doesn't use any data from the row
     {
-      headerName: "ID",
-      maxWidth: 100,
-      // it is important to have node.id here, so that when the id changes (which happens
-      // when the row is loaded) then the cell is refreshed.
+      headerName: "سطر",
+      maxWidth: 60,
       valueGetter: "node.id",
       cellRenderer: (props) => {
         if (props.value !== undefined) {
@@ -55,24 +49,48 @@ function CourseTable() {
         } else {
           return (
             <img
-              src="https://www.ag-grid.com/example-assets/loading.gif"
+              src="../../../../../public/assets/images/loading.gif"
               alt={"loader"}
             />
           );
         }
       },
     },
-    { field: "athlete", minWidth: 150 },
-    { field: "age" },
-    { field: "country", minWidth: 150 },
-    { field: "year" },
-    { field: "date", minWidth: 150 },
-    { field: "sport", minWidth: 150 },
-    { field: "gold" },
-    { field: "silver" },
-    { field: "bronze" },
-    { field: "total" },
+    { headerName: "کد دوره", field: "courseCode" },
+    {
+      headerName: "تاریخ ایجاد",
+      field: "createDate",
+      valueFormatter: (params) => toShamsiDate(params.value),
+      sortable: true,
+    },
+    {
+      headerName: "نام دوره",
+      field: "courseName",
+      minWidth: 200,
+      sortable: true,
+    },
+    {
+      headerName: "نام استاد",
+      field: "instructorName",
+      minWidth: 150,
+      sortable: true,
+    },
+    { headerName: "ظرفیت دوره", field: "capacity" },
+    { headerName: "تعداد واحد درس", field: "units" },
+    {
+      headerName: "جنسیت مجاز",
+      field: "allowedGenders",
+      valueFormatter: (params) => getGenderText(params.value),
+    },
+    { headerName: "مکان برگزاری", field: "location", minWidth: 200 },
+    {
+      headerName: "وضعیت دوره",
+      field: "status",
+      cellRenderer: (params) => <CourseStatus id={params.value} />,
+      sortable: true,
+    },
   ]);
+
   const defaultColDef = useMemo(() => {
     return {
       flex: 1,
@@ -81,34 +99,46 @@ function CourseTable() {
     };
   }, []);
 
-  const onGridReady = useCallback((params) => {
-    fetch("https://www.ag-grid.com/example-assets/olympic-winners.json")
-      .then((resp) => resp.json())
-      .then((data) => {
-        const dataSource = {
-          rowCount: undefined,
-          getRows: (params) => {
-            console.log(
-              "asking for " + params.startRow + " to " + params.endRow,
+  const onGridReady = useCallback(
+    (params) => {
+      const dataSource = {
+        rowCount: undefined,
+        getRows: async (gridParams) => {
+          const size = gridParams.endRow - gridParams.startRow;
+          const page = Math.floor(gridParams.startRow / size);
+          const sortModel = gridParams.sortModel[0]; // AG Grid gives sort info here
+          const sortField = sortModel?.colId;
+          const sortDir = sortModel?.sort; // 'asc' or 'desc'
+          console.log(sortModel, sortField, sortDir);
+
+          const result = await trigger({
+            pageNo: page,
+            pageSize: size,
+            sortField,
+            sortDir,
+          });
+
+          if (!result.isError) {
+            const { content, totalElements } = result.data.data;
+            const lastRow =
+              gridParams.endRow >= totalElements ? totalElements : -1;
+
+            gridParams.successCallback(content, lastRow);
+          } else {
+            dispatch(
+              showMessage({
+                message: result.error.response.data.message,
+                variant: "error",
+              }),
             );
-            // At this point in your code, you would call the server.
-            // To make the demo look real, wait for 500ms before returning
-            setTimeout(function () {
-              // take a slice of the total rows
-              const rowsThisPage = data.slice(params.startRow, params.endRow);
-              // if on or after the last page, work out the last row.
-              let lastRow = -1;
-              if (data.length <= params.endRow) {
-                lastRow = data.length;
-              }
-              // call the success callback
-              params.successCallback(rowsThisPage, lastRow);
-            }, 500);
-          },
-        };
-        params.api.setGridOption("datasource", dataSource);
-      });
-  }, []);
+            gridParams.failCallback();
+          }
+        },
+      };
+      params.api.setGridOption("datasource", dataSource);
+    },
+    [trigger],
+  );
 
   return (
     <Paper
@@ -118,20 +148,23 @@ function CourseTable() {
       <div style={containerStyle}>
         <div style={gridStyle}>
           <AgGridReact
+            enableRtl={true}
             columnDefs={columnDefs}
+            onGridReady={onGridReady}
             defaultColDef={defaultColDef}
-            rowBuffer={0}
             rowModelType={"infinite"}
-            cacheBlockSize={100}
             cacheOverflowSize={2}
-            maxConcurrentDatasourceRequests={1}
-            infiniteInitialRowCount={1000}
-            maxBlocksInCache={10}
+            cacheBlockSize={20}
+            paginationPageSize={20}
+            maxConcurrentDatasourceRequests={2}
+            infiniteInitialRowCount={1}
+            maxBlocksInCache={2}
             pagination={true}
             // getRowId={getRowId}
-            onGridReady={onGridReady}
-            theme={theme}
             localeText={localeText}
+            theme={theme}
+            copySelectedRows={true}
+            sort
           />
         </div>
       </div>

@@ -3,6 +3,10 @@ import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import CheckIcon from "@mui/icons-material/Check";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
 
 function CourseForm() {
   return (
@@ -13,12 +17,15 @@ function CourseForm() {
           padding: 2,
           margin: 2,
           "& .MuiTextField-root": {
-            mx: 0.5,
-            my: 1,
+            m: 0.5,
             maxWidth: "100%",
           },
           "& .MuiOutlinedInput-root": {
             borderRadius: "7px",
+            fontWeight: 700,
+          },
+          "& .MuiInputLabel-root": {
+            fontWeight: 700,
           },
         }}
       >
@@ -56,24 +63,40 @@ function CourseForm() {
             label="تعداد واحد درس"
             variant="outlined"
           />
-          <TextField
-            fullWidth
-            id="allowed-genders"
-            label="جنسیت های مجاز"
-            variant="outlined"
-          />
+          <FormControl fullWidth>
+            <InputLabel id="allowed-genders-label">جنسیت های مجاز</InputLabel>
+            <Select
+              labelId="allowed-genders-label"
+              id="allowed-genders"
+              // value={age}
+              label="جنسیت های مجاز"
+              // onChange={handleChange}
+            >
+              <MenuItem value={1}>مرد</MenuItem>
+              <MenuItem value={2}>زن</MenuItem>
+              <MenuItem value={3}>مختلط</MenuItem>
+            </Select>
+          </FormControl>
           <TextField
             fullWidth
             id="location"
             label="مکان برگزاری"
             variant="outlined"
           />
-          <TextField
-            fullWidth
-            id="status"
-            label="وضعیت دوره"
-            variant="outlined"
-          />
+          <FormControl fullWidth>
+            <InputLabel id="status-label">وضعیت دوره</InputLabel>
+            <Select
+              labelId="status-label"
+              id="status"
+              // value={age}
+              label="وضعیت دوره"
+              // onChange={handleChange}
+              variant="outlined"
+            >
+              <MenuItem value={1}>فعال</MenuItem>
+              <MenuItem value={0}>غیر فعال</MenuItem>
+            </Select>
+          </FormControl>
         </Stack>
         <div className={"flex justify-end mt-4"}>
           <Button

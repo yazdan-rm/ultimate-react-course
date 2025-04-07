@@ -1,17 +1,23 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import Axios from "axios";
+import i18next from "i18next";
 
 const axiosBaseQuery =
   () =>
   async ({ url, method, data, params }) => {
     try {
-      Axios.defaults.baseURL = "/api";
+      Axios.defaults.baseURL = "http://localhost:8080/api/v1";
+      const language = i18next.language;
+
       const result = await Axios({
         url,
         method,
         data,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         params,
+        headers: {
+          "Accept-Language": language, // Add the Accept-Language header
+        },
       });
       return { data: result.data };
     } catch (axiosError) {
