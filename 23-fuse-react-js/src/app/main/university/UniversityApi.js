@@ -1,27 +1,30 @@
 import { apiService as api } from "app/store/apiService.js";
 
-export const addTagTypes = ["ums_courses"];
-const UniversityApi = api
-  .enhanceEndpoints({
-    addTagTypes,
-  })
-  .injectEndpoints({
-    endpoints: (build) => ({
-      getCourses: build.query({
-        query: ({
-          pageNo,
-          pageSize,
-          sortField = "createDate",
-          sortDir = "desc",
-        }) => ({
-          url: `/courses?pageNo=${pageNo}&pageSize=${pageSize}&sortField=${sortField}&sortDir=${sortDir}`,
-        }),
-        // providesTags: ["ums_courses"],
+const UniversityApi = api.injectEndpoints({
+  endpoints: (build) => ({
+    getCourses: build.query({
+      query: ({
+        pageNo,
+        pageSize,
+        sortField = "createDate",
+        sortDir = "desc",
+      }) => ({
+        url: `/courses?pageNo=${pageNo}&pageSize=${pageSize}&sortField=${sortField}&sortDir=${sortDir}`,
+        method: "GET",
       }),
     }),
-    overrideExisting: false,
-  });
+    createCourse: build.mutation({
+      query: (newCourse) => ({
+        url: `/courses`,
+        method: "POST",
+        data: newCourse,
+      }),
+    }),
+  }),
+  overrideExisting: false,
+});
 
 export default UniversityApi;
 
-export const { useLazyGetCoursesQuery } = UniversityApi;
+export const { useLazyGetCoursesQuery, useCreateCourseMutation } =
+  UniversityApi;

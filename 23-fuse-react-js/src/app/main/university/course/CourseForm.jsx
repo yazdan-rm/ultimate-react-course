@@ -1,23 +1,100 @@
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
-import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import CheckIcon from "@mui/icons-material/Check";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import FormHelperText from "@mui/material/FormHelperText";
+import Grid from "@mui/material/Grid";
+import { useAppDispatch } from "app/store/hooks.js";
+import { useCreateCourseMutation } from "../UniversityApi.js";
+import { updateAgGrid } from "../universitySlice.js";
+import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice.js";
+
+const defaultValues = {
+  courseCode: "",
+  units: "",
+  allowedGenders: "",
+  courseName: "",
+  instructorName: "",
+  capacity: "",
+  status: "",
+  location: "",
+};
+
+const schema = z.object({
+  courseCode: z.string().min(1, "مقدار فیلد کد دوره اجباریست"),
+  units: z.coerce
+    .number()
+    .min(1, "حداقل مقدار 1 می باشد")
+    .max(3, "حداکثر مقدار 3 می باشد"),
+  allowedGenders: z.number({
+    required_error: "مقدار فیلد جنسیت مجاز اجباریست",
+    invalid_type_error: "مقدار وارد شده درست نیست",
+  }),
+  instructorName: z.string(),
+  courseName: z.string().min(1, "مقدار فیلد نام دوره اجباریست"),
+  capacity: z.coerce
+    .number({ invalid_type_error: "عدد وارد کنید" })
+    .int()
+    .min(10, "حداقل مقدار 10 است"),
+  status: z.number({
+    required_error: "مقدار فیلد وضعیت دوره اجباریست",
+    invalid_type_error: "مقدار وارد شده درست نیست",
+  }),
+  location: z.string().min(1, "مقدار فیلد مکان دوره اجباریست"),
+});
 
 function CourseForm() {
+  const dispatch = useAppDispatch();
+  const [createCourse] = useCreateCourseMutation();
+
+  const {
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues,
+    resolver: zodResolver(schema),
+    mode: "all",
+  });
+
+  const onSubmit = (data) => {
+    const payload = {
+      ...data,
+      instructorName: data.instructorName?.trim() || "گروه اساتید",
+    };
+    createCourse(payload)
+      .unwrap()
+      .then((data) => {
+        dispatch(showMessage({ message: data.message }));
+      })
+      .catch((e) =>
+        dispatch(
+          showMessage({ message: e.response.data.message, variant: "error" }),
+        ),
+      );
+    reset();
+    dispatch(updateAgGrid());
+  };
+
   return (
-    <>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <Paper
         elevation={4}
         sx={{
-          padding: 2,
+          padding: 4,
           margin: 2,
+          display: "flex",
+          flexDirection: "column",
+          gap: 1,
           "& .MuiTextField-root": {
-            m: 0.5,
             maxWidth: "100%",
           },
           "& .MuiOutlinedInput-root": {
@@ -29,87 +106,150 @@ function CourseForm() {
           },
         }}
       >
-        <Stack direction="row" justifyContent="center" alignItems="center">
-          <TextField
-            fullWidth
-            id="course-name"
-            label="نام دوره"
-            variant="outlined"
-          />
-          <TextField
-            fullWidth
-            id="course-code"
-            label="کد دوره"
-            variant="outlined"
-          />
-          <TextField
-            fullWidth
-            id="instructor-name"
-            label="نام استاد"
-            variant="outlined"
-            defaultValue="گروه اساتید"
-          />
-          <TextField
-            fullWidth
-            id="capacity"
-            label="ظرفیت دوره"
-            variant="outlined"
-          />
-        </Stack>
-        <Stack direction="row" justifyContent="center" alignItems="center">
-          <TextField
-            fullWidth
-            id="units"
-            label="تعداد واحد درس"
-            variant="outlined"
-          />
-          <FormControl fullWidth>
-            <InputLabel id="allowed-genders-label">جنسیت های مجاز</InputLabel>
-            <Select
-              labelId="allowed-genders-label"
-              id="allowed-genders"
-              // value={age}
-              label="جنسیت های مجاز"
-              // onChange={handleChange}
-            >
-              <MenuItem value={1}>مرد</MenuItem>
-              <MenuItem value={2}>زن</MenuItem>
-              <MenuItem value={3}>مختلط</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField
-            fullWidth
-            id="location"
-            label="مکان برگزاری"
-            variant="outlined"
-          />
-          <FormControl fullWidth>
-            <InputLabel id="status-label">وضعیت دوره</InputLabel>
-            <Select
-              labelId="status-label"
-              id="status"
-              // value={age}
-              label="وضعیت دوره"
-              // onChange={handleChange}
-              variant="outlined"
-            >
-              <MenuItem value={1}>فعال</MenuItem>
-              <MenuItem value={0}>غیر فعال</MenuItem>
-            </Select>
-          </FormControl>
-        </Stack>
-        <div className={"flex justify-end mt-4"}>
+        <Grid container spacing={1}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Controller
+              name="courseName"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="نام دوره"
+                  error={!!errors.courseName}
+                  helperText={errors.courseName?.message}
+                  fullWidth
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Controller
+              name="courseCode"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="کد دوره"
+                  error={!!errors.courseCode}
+                  helperText={errors.courseCode?.message}
+                  fullWidth
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Controller
+              name="instructorName"
+              control={control}
+              render={({ field }) => (
+                <TextField {...field} label="نام استاد" fullWidth />
+              )}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Controller
+              name="capacity"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="ظرفیت دوره"
+                  type="number"
+                  error={!!errors.capacity}
+                  helperText={errors.capacity?.message}
+                  fullWidth
+                />
+              )}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Controller
+              name="units"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="تعداد واحد درس"
+                  type="number"
+                  error={!!errors.units}
+                  helperText={errors.units?.message}
+                  fullWidth
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Controller
+              name="allowedGenders"
+              control={control}
+              render={({ field }) => (
+                <FormControl fullWidth error={!!errors.allowedGenders}>
+                  <InputLabel id="allowed-genders-label">
+                    جنسیت های مجاز
+                  </InputLabel>
+                  <Select
+                    {...field}
+                    labelId="allowed-genders-label"
+                    label="جنسیت های مجاز"
+                  >
+                    <MenuItem value={1}>مرد</MenuItem>
+                    <MenuItem value={2}>زن</MenuItem>
+                    <MenuItem value={3}>مختلط</MenuItem>
+                  </Select>
+                  <FormHelperText>
+                    {errors.allowedGenders?.message}
+                  </FormHelperText>
+                </FormControl>
+              )}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Controller
+              name="location"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="مکان برگزاری"
+                  error={!!errors.location}
+                  helperText={errors.location?.message}
+                  fullWidth
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <FormControl fullWidth error={!!errors.status}>
+                  <InputLabel id="status-label">وضعیت دوره</InputLabel>
+                  <Select {...field} labelId="status-label" label="وضعیت دوره">
+                    <MenuItem value={1}>فعال</MenuItem>
+                    <MenuItem value={0}>غیر فعال</MenuItem>
+                  </Select>
+                  <FormHelperText>{errors.status?.message}</FormHelperText>
+                </FormControl>
+              )}
+            />
+          </Grid>
+        </Grid>
+
+        <div className="flex justify-end mt-2">
           <Button
             size="large"
             color="primary"
             variant="contained"
+            type="submit"
             endIcon={<CheckIcon />}
           >
             ثبت
           </Button>
         </div>
       </Paper>
-    </>
+    </form>
   );
 }
 

@@ -7,7 +7,7 @@ export const courseStatuses = [
     color: "bg-green text-white",
   },
   {
-    id: 2,
+    id: 0,
     name: "غیر فعال",
     color: "bg-red-700 text-white",
   },
