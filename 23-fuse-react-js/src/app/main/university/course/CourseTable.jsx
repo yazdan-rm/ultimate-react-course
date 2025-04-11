@@ -6,6 +6,7 @@ import CourseStatus from "../../../utils/CourseStatus.jsx";
 import AgGrid from "../../../utils/AgGrid.jsx";
 import { useAppSelector } from "app/store/hooks.js";
 import { selectRefreshGridFlag } from "../universitySlice.js";
+import ActionButtons from "./ActionButtons.jsx";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -43,6 +44,13 @@ function CourseTable() {
       valueFormatter: (params) => getGenderText(params.value),
     },
     { headerName: "مکان برگزاری", field: "location", minWidth: 200 },
+    {
+      headerName: "عملیات ها",
+      cellRenderer: (params) => <ActionButtons data={params.data} />,
+      pinned: "left",
+      width: 30,
+      sortable: false,
+    },
   ];
 
   return (

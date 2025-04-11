@@ -29,7 +29,7 @@ const navigationConfig = [
         title: "Create New Course",
         translate: "CREATE_NEW_COURSE",
         type: "item",
-        icon: "heroicons-solid:plus-circle",
+        icon: "material-solid:school",
         url: "/app/university/course",
       },
     ],

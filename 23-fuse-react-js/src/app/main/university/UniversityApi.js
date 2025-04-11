@@ -20,11 +20,28 @@ const UniversityApi = api.injectEndpoints({
         data: newCourse,
       }),
     }),
+    updateCourse: build.mutation({
+      query: (updatedCourse) => ({
+        url: `/courses/${updatedCourse.id}`,
+        method: "PUT",
+        data: updatedCourse,
+      }),
+    }),
+    deleteCourse: build.mutation({
+      query: (courseId) => ({
+        url: `/courses/${courseId}`,
+        method: "DELETE",
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
 export default UniversityApi;
 
-export const { useLazyGetCoursesQuery, useCreateCourseMutation } =
-  UniversityApi;
+export const {
+  useLazyGetCoursesQuery,
+  useCreateCourseMutation,
+  useUpdateCourseMutation,
+  useDeleteCourseMutation,
+} = UniversityApi;

@@ -38,6 +38,7 @@ const AgGrid = ({
   const theme = useMemo(() => {
     return themeQuartz.withParams({
       headerTextColor: "#fff",
+      textColor: userTheme.palette.text.secondary,
       headerBackgroundColor: userTheme.palette.primary.main,
       oddRowBackgroundColor: userTheme.palette.background.default,
       headerColumnResizeHandleColor: userTheme.palette.primary.light,

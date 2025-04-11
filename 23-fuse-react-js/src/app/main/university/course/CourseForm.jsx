@@ -11,12 +11,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import FormHelperText from "@mui/material/FormHelperText";
 import Grid from "@mui/material/Grid";
-import { useAppDispatch } from "app/store/hooks.js";
-import { useCreateCourseMutation } from "../UniversityApi.js";
-import { updateAgGrid } from "../universitySlice.js";
+import { useAppDispatch, useAppSelector } from "app/store/hooks.js";
+import {
+  useCreateCourseMutation,
+  useUpdateCourseMutation,
+} from "../UniversityApi.js";
+import { refreshAgGrid, selectDataObject } from "../universitySlice.js";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice.js";
+import { useEffect } from "react";
 
 const defaultValues = {
+  id: "",
   courseCode: "",
   units: "",
   allowedGenders: "",
@@ -28,6 +33,7 @@ const defaultValues = {
 };
 
 const schema = z.object({
+  id: z.any().optional(),
   courseCode: z.string().min(1, "مقدار فیلد کد دوره اجباریست"),
   units: z.coerce
     .number()
@@ -53,6 +59,8 @@ const schema = z.object({
 function CourseForm() {
   const dispatch = useAppDispatch();
   const [createCourse] = useCreateCourseMutation();
+  const [updateCourse] = useUpdateCourseMutation();
+  const dataForUpdate = useAppSelector(selectDataObject);
 
   const {
     handleSubmit,
@@ -65,23 +73,42 @@ function CourseForm() {
     mode: "all",
   });
 
+  useEffect(() => {
+    reset(dataForUpdate);
+  }, [dataForUpdate]);
+
   const onSubmit = (data) => {
     const payload = {
       ...data,
       instructorName: data.instructorName?.trim() || "گروه اساتید",
     };
-    createCourse(payload)
-      .unwrap()
-      .then((data) => {
-        dispatch(showMessage({ message: data.message }));
-      })
-      .catch((e) =>
-        dispatch(
-          showMessage({ message: e.response.data.message, variant: "error" }),
-        ),
-      );
-    reset();
-    dispatch(updateAgGrid());
+
+    if (payload.id) {
+      updateCourse(data)
+        .unwrap()
+        .then((data) => {
+          dispatch(showMessage({ message: data.message }));
+        })
+        .catch((e) =>
+          dispatch(
+            showMessage({ message: e.response.data.message, variant: "error" }),
+          ),
+        );
+    } else {
+      createCourse(payload)
+        .unwrap()
+        .then((data) => {
+          dispatch(showMessage({ message: data.message }));
+        })
+        .catch((e) =>
+          dispatch(
+            showMessage({ message: e.response.data.message, variant: "error" }),
+          ),
+        );
+    }
+
+    reset(defaultValues);
+    dispatch(refreshAgGrid());
   };
 
   return (
