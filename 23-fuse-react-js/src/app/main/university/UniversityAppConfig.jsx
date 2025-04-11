@@ -1,6 +1,6 @@
 import UniversityApp from "./UniversityApp.jsx";
 import Course from "./course/Course.jsx";
-import Dashboard from "./Dashboard.jsx";
+import Dashboard from "./dashboard/Dashboard.jsx";
 
 const UniversityAppConfig = {
   routes: [

@@ -34,23 +34,6 @@ function CourseForm() {
       </Container>
 
       <Box
-        sx={{
-          backgroundColor: "primary.main",
-          margin: 2,
-          color: "white",
-          padding: 2,
-          borderRadius: 2,
-          "&:hover": {
-            backgroundColor: "secondary.main",
-            transform: "scale(1.05)",
-            transition: "0.3s ease-in-out",
-          },
-        }}
-      >
-        Hover over me!
-      </Box>
-
-      <Box
         component="form"
         sx={{
           margin: 2,
