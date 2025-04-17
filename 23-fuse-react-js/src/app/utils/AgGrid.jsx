@@ -19,7 +19,8 @@ const AgGrid = ({
   fetchData, // Function to fetch data (should return a promise)
   columnDefs, // Array of column definitions
 
-  // Optional props with defaults
+  // Optional props
+  masterId = null, // New optional prop for master-detail behavior
   refreshGrid,
   containerStyle = { width: "100%", height: "52vh" },
   gridStyle = { height: "100%", width: "100%" },
@@ -57,9 +58,8 @@ const AgGrid = ({
   useEffect(() => {
     gridRef?.current?.api?.paginationGoToPage(0);
     gridRef?.current?.api?.refreshInfiniteCache();
-  }, [refreshGrid]);
+  }, [refreshGrid, masterId]);
 
-  // Add row number column if enabled
   const finalColumnDefs = useMemo(() => {
     return [
       {
@@ -72,10 +72,7 @@ const AgGrid = ({
             return props.value;
           } else {
             return (
-              <img
-                src="../../../public/assets/images/loading.gif"
-                alt={"loader"}
-              />
+              <img src="../../../assets/images/loading.gif" alt={"loader"} />
             );
           }
         },
@@ -91,19 +88,23 @@ const AgGrid = ({
         getRows: async (gridParams) => {
           const size = gridParams.endRow - gridParams.startRow;
           const page = Math.floor(gridParams.startRow / size);
-          const sortModel = gridParams.sortModel[0]; // AG Grid gives sort info here
+          const sortModel = gridParams.sortModel[0];
           const sortField = sortModel?.colId;
-          const sortDir = sortModel?.sort; // 'asc' or 'desc'
+          const sortDir = sortModel?.sort;
 
           const result = await fetchData({
             pageNo: page,
             pageSize: size,
             sortField,
             sortDir,
+            masterId, // Send masterId if available
           });
 
           if (!result.isError) {
-            const { content, totalElements } = result.data.data;
+            const {
+              content,
+              page: { totalElements },
+            } = result.data.data;
             const lastRow =
               gridParams.endRow >= totalElements ? totalElements : -1;
 
@@ -121,7 +122,7 @@ const AgGrid = ({
       };
       params.api.setGridOption("datasource", dataSource);
     },
-    [fetchData],
+    [fetchData, masterId],
   );
 
   return (
@@ -138,6 +139,8 @@ const AgGrid = ({
             onGridReady={onGridReady}
             defaultColDef={defaultColDef}
             rowModelType={"infinite"}
+            tooltipShowDelay={100}
+            tooltipHideDelay={2000}
             cacheOverflowSize={2}
             cacheBlockSize={cacheBlockSize}
             paginationPageSize={pageSize}

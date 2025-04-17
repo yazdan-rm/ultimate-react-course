@@ -2,7 +2,7 @@ import { apiService as api } from "app/store/apiService.js";
 
 const UniversityApi = api.injectEndpoints({
   endpoints: (build) => ({
-    getCourses: build.query({
+    getPagedCourses: build.query({
       query: ({
         pageNo,
         pageSize,
@@ -33,6 +33,65 @@ const UniversityApi = api.injectEndpoints({
         method: "DELETE",
       }),
     }),
+    getAllCourses: build.query({
+      query: (courseId) => {
+        console.log("test", courseId);
+        return {
+          url: `/courses/get-all/${courseId}`,
+          method: "GET",
+        };
+      },
+    }),
+    createCoursePrerequisite: build.mutation({
+      query: (newCoursePrerequisite) => ({
+        url: `/course-prerequisites`,
+        method: "POST",
+        data: newCoursePrerequisite,
+      }),
+    }),
+    updateCoursePrerequisite: build.mutation({
+      query: (updatedCourse) => ({
+        url: `/course-prerequisites/${updatedCourse.id}`,
+        method: "PUT",
+        data: updatedCourse,
+      }),
+    }),
+    deleteCoursePrerequisite: build.mutation({
+      query: (courseId) => ({
+        url: `/course-prerequisites/${courseId}`,
+        method: "DELETE",
+      }),
+    }),
+    getPagedCoursePrerequisites: build.query({
+      query: ({
+        pageNo,
+        pageSize,
+        sortField = "createDate",
+        sortDir = "desc",
+        masterId,
+      }) => ({
+        url: `/course-prerequisites?pageNo=${pageNo}&pageSize=${pageSize}&sortField=${sortField}&sortDir=${sortDir}&courseId=${masterId}`,
+        method: "GET",
+      }),
+    }),
+    getAllColleges: build.query({
+      query: () => ({
+        url: `/university/get-all-colleges`,
+        method: "GET",
+      }),
+    }),
+    getDepartmentsByCollegeCode: build.query({
+      query: (collegeCode) => ({
+        url: `/university/get-departments-by-college-code/${collegeCode}`,
+        method: "GET",
+      }),
+    }),
+    getFieldOfStudyByDepartmentCode: build.query({
+      query: (studyByDepartmentCode) => ({
+        url: `/university/get-field-of-study-by-department-code/${studyByDepartmentCode}`,
+        method: "GET",
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -40,8 +99,16 @@ const UniversityApi = api.injectEndpoints({
 export default UniversityApi;
 
 export const {
-  useLazyGetCoursesQuery,
+  useLazyGetPagedCoursesQuery,
   useCreateCourseMutation,
   useUpdateCourseMutation,
   useDeleteCourseMutation,
+  useGetAllCoursesQuery,
+  useLazyGetPagedCoursePrerequisitesQuery,
+  useCreateCoursePrerequisiteMutation,
+  useUpdateCoursePrerequisiteMutation,
+  useDeleteCoursePrerequisiteMutation,
+  useGetAllCollegesQuery,
+  useLazyGetDepartmentsByCollegeCodeQuery,
+  useLazyGetFieldOfStudyByDepartmentCodeQuery,
 } = UniversityApi;

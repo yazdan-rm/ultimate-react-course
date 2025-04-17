@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTheme } from "@mui/styles";
 
-function FeatureLink({ children }) {
+function CourseLink({ children }) {
   const userTheme = useTheme();
 
   return (
@@ -24,4 +24,4 @@ function FeatureLink({ children }) {
   );
 }
 
-export default FeatureLink;
+export default CourseLink;

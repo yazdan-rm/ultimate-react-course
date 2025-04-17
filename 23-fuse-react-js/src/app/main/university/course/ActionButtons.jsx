@@ -9,6 +9,8 @@ import { useState } from "react";
 import { useAppDispatch } from "app/store/hooks.js";
 import { useDeleteCourseMutation } from "../UniversityApi.js";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice.js";
+import AddBoxRoundedIcon from "@mui/icons-material/AddBoxRounded";
+import { Link } from "react-router-dom";
 
 function ActionButtons({ data }) {
   const dispatch = useAppDispatch();
@@ -18,6 +20,10 @@ function ActionButtons({ data }) {
 
   const handleEdit = () => {
     dispatch(updateData(data));
+    handleClose();
+  };
+
+  const handlePrerequisite = () => {
     handleClose();
   };
 
@@ -46,15 +52,27 @@ function ActionButtons({ data }) {
 
   return (
     <>
-      <Button className="flex gap-2 justify-center" onClick={handleClick}>
+      <Button className="flex justify-center" onClick={handleClick}>
         <MoreVertRoundedIcon fontSize="medium" />
       </Button>
       <Menu open={open} anchorEl={anchorEl} onClose={handleClose}>
-        <MenuItem className="flex gap-2 justify-around" onClick={handleEdit}>
+        <Link
+          to={`/app/university/course/${data?.id}`}
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          <MenuItem
+            className="flex gap-4 justify-around"
+            onClick={handlePrerequisite}
+          >
+            <p>پیش نیاز</p>
+            <AddBoxRoundedIcon className="text-gray-700" fontSize="medium" />
+          </MenuItem>
+        </Link>
+        <MenuItem className="flex gap-4 justify-around" onClick={handleEdit}>
           <p>ویرایش</p>
           <EditOutlinedIcon className="text-blue-500" fontSize="medium" />
         </MenuItem>
-        <MenuItem className="flex gap-2 justify-around" onClick={handleDelete}>
+        <MenuItem className="flex gap-4 justify-around" onClick={handleDelete}>
           <p>حذف</p>
           <DeleteIcon className="text-red-500" fontSize="medium" />
         </MenuItem>

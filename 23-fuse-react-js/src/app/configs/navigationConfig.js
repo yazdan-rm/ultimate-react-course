@@ -11,7 +11,7 @@ const navigationConfig = [
   {
     id: "dashboard",
     title: "Dashboard",
-    translate: "داشبورد",
+    translate: "DASHBOARD",
     type: "item",
     icon: "heroicons-solid:clipboard-list",
     url: "/",

@@ -1,7 +1,7 @@
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import CheckIcon from "@mui/icons-material/Check";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -14,27 +14,40 @@ import Grid from "@mui/material/Grid";
 import { useAppDispatch, useAppSelector } from "app/store/hooks.js";
 import {
   useCreateCourseMutation,
+  useGetAllCollegesQuery,
+  useLazyGetDepartmentsByCollegeCodeQuery,
+  useLazyGetFieldOfStudyByDepartmentCodeQuery,
   useUpdateCourseMutation,
 } from "../UniversityApi.js";
-import { refreshAgGrid, selectDataObject } from "../universitySlice.js";
+import {
+  refreshAgGrid,
+  resetData,
+  selectDataObject,
+} from "../universitySlice.js";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice.js";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { generateSemesters } from "../../../utils/UmsUtils.js";
+import Autocomplete from "@mui/material/Autocomplete";
+import DoneOutlineRoundedIcon from "@mui/icons-material/DoneOutlineRounded";
 
 const defaultValues = {
   id: "",
-  courseCode: "",
+  semester: "",
   units: "",
   allowedGenders: "",
   courseName: "",
   instructorName: "",
   capacity: "",
-  status: "",
   location: "",
+  educationalLevel: "",
+  collegeCode: "",
+  departmentCode: "",
+  fieldOfStudyCode: "",
 };
 
 const schema = z.object({
   id: z.any().optional(),
-  courseCode: z.string().min(1, "مقدار فیلد کد دوره اجباریست"),
+  semester: z.coerce.string().min(1, "مقدار فیلد نیم سال تحصیلی اجباریست"),
   units: z.coerce
     .number()
     .min(1, "حداقل مقدار 1 می باشد")
@@ -49,24 +62,52 @@ const schema = z.object({
     .number({ invalid_type_error: "عدد وارد کنید" })
     .int()
     .min(10, "حداقل مقدار 10 است"),
-  status: z.number({
-    required_error: "مقدار فیلد وضعیت دوره اجباریست",
+  location: z.string().min(1, "مقدار فیلد مکان دوره اجباریست"),
+  educationalLevel: z.number({
+    required_error: "مقدار فیلد مقطع تحصیلی اجباریست",
     invalid_type_error: "مقدار وارد شده درست نیست",
   }),
-  location: z.string().min(1, "مقدار فیلد مکان دوره اجباریست"),
+  collegeCode: z.coerce.number({
+    invalid_type_error: "مقدار فیلد دانشکده مجاز اجباریست",
+  }),
+  departmentCode: z.coerce.number({
+    invalid_type_error: "مقدار فیلد گروه آموزشی مجاز اجباریست",
+  }),
+  fieldOfStudyCode: z.coerce.number({
+    invalid_type_error: "مقدار فیلد رشته تحصیلی اجباریست",
+  }),
 });
 
 function CourseForm() {
+  const [collegeCode, setCollegeCode] = useState(null);
+  const [departmentCode, setDepartmentCode] = useState(null);
   const dispatch = useAppDispatch();
   const [createCourse] = useCreateCourseMutation();
+  const { data: collegeData, isLoading: isCollegesLoading } =
+    useGetAllCollegesQuery();
+
+  const [
+    triggerGetDepartmentsByCollegeCode,
+    { data: departmentData, isLoading: isDepartmentsLoading },
+  ] = useLazyGetDepartmentsByCollegeCodeQuery();
+
+  const [
+    triggerGetFieldOfStudyByDepartmentCode,
+    { data: fieldOfStudyData, isLoading: isFieldOfStudyLoading },
+  ] = useLazyGetFieldOfStudyByDepartmentCodeQuery();
+
   const [updateCourse] = useUpdateCourseMutation();
   const dataForUpdate = useAppSelector(selectDataObject);
+  const semesters = generateSemesters();
+  const colleges = collegeData?.data || [];
+  const departments = departmentData?.data || [];
+  const fieldOfStudy = fieldOfStudyData?.data || [];
 
   const {
     handleSubmit,
     control,
     reset,
-    formState: { errors },
+    formState: { errors, isValid, dirtyFields },
   } = useForm({
     defaultValues,
     resolver: zodResolver(schema),
@@ -74,7 +115,17 @@ function CourseForm() {
   });
 
   useEffect(() => {
+    if (collegeCode) triggerGetDepartmentsByCollegeCode(collegeCode);
+  }, [collegeCode]);
+
+  useEffect(() => {
+    if (departmentCode) triggerGetFieldOfStudyByDepartmentCode(departmentCode);
+  }, [departmentCode]);
+
+  useEffect(() => {
     reset(dataForUpdate);
+    setCollegeCode(dataForUpdate?.collegeCode);
+    setDepartmentCode(dataForUpdate?.departmentCode);
   }, [dataForUpdate]);
 
   const onSubmit = (data) => {
@@ -109,6 +160,12 @@ function CourseForm() {
 
     reset(defaultValues);
     dispatch(refreshAgGrid());
+    dispatch(resetData());
+  };
+
+  const onClean = () => {
+    dispatch(resetData());
+    reset(defaultValues);
   };
 
   return (
@@ -141,6 +198,7 @@ function CourseForm() {
               render={({ field }) => (
                 <TextField
                   {...field}
+                  size="small"
                   label="نام دوره"
                   error={!!errors.courseName}
                   helperText={errors.courseName?.message}
@@ -151,16 +209,31 @@ function CourseForm() {
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <Controller
-              name="courseCode"
+              name="semester"
               control={control}
               render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="کد دوره"
-                  error={!!errors.courseCode}
-                  helperText={errors.courseCode?.message}
-                  fullWidth
-                />
+                <FormControl fullWidth error={!!errors.semester} size="small">
+                  <InputLabel id="semester">نیم سال تحصیلی</InputLabel>
+                  <Select
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          height: 300,
+                        },
+                      },
+                    }}
+                    {...field}
+                    labelId="allowed-genders-label"
+                    label="نیم سال تحصیلی"
+                  >
+                    {semesters?.map((semester) => (
+                      <MenuItem key={semester.code} value={semester.code}>
+                        {semester.description}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <FormHelperText>{errors.semester?.message}</FormHelperText>
+                </FormControl>
               )}
             />
           </Grid>
@@ -169,7 +242,12 @@ function CourseForm() {
               name="instructorName"
               control={control}
               render={({ field }) => (
-                <TextField {...field} label="نام استاد" fullWidth />
+                <TextField
+                  size="small"
+                  {...field}
+                  label="نام استاد"
+                  fullWidth
+                />
               )}
             />
           </Grid>
@@ -179,6 +257,7 @@ function CourseForm() {
               control={control}
               render={({ field }) => (
                 <TextField
+                  size="small"
                   {...field}
                   label="ظرفیت دوره"
                   type="number"
@@ -196,6 +275,7 @@ function CourseForm() {
               control={control}
               render={({ field }) => (
                 <TextField
+                  size="small"
                   {...field}
                   label="تعداد واحد درس"
                   type="number"
@@ -211,7 +291,11 @@ function CourseForm() {
               name="allowedGenders"
               control={control}
               render={({ field }) => (
-                <FormControl fullWidth error={!!errors.allowedGenders}>
+                <FormControl
+                  size="small"
+                  fullWidth
+                  error={!!errors.allowedGenders}
+                >
                   <InputLabel id="allowed-genders-label">
                     جنسیت های مجاز
                   </InputLabel>
@@ -233,10 +317,39 @@ function CourseForm() {
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <Controller
+              name="educationalLevel"
+              control={control}
+              render={({ field }) => (
+                <FormControl
+                  size="small"
+                  fullWidth
+                  error={!!errors.educationalLevel}
+                >
+                  <InputLabel id="status-label">مقطع تحصیلی</InputLabel>
+                  <Select {...field} labelId="status-label" label="مقطع تحصیلی">
+                    <MenuItem value={1}>كارداني</MenuItem>
+                    <MenuItem value={3}>كارشناسي</MenuItem>
+                    <MenuItem value={4}>كارشناسي ارشد</MenuItem>
+                    <MenuItem value={5}>دكتري</MenuItem>
+                    <MenuItem value={6}>دانشوري</MenuItem>
+                    <MenuItem value={8}>ارشـد</MenuItem>
+                    <MenuItem value={9}>حوزوي</MenuItem>
+                    <MenuItem value={14}>نامشخص</MenuItem>
+                  </Select>
+                  <FormHelperText>
+                    {errors.educationalLevel?.message}
+                  </FormHelperText>
+                </FormControl>
+              )}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Controller
               name="location"
               control={control}
               render={({ field }) => (
                 <TextField
+                  size="small"
                   {...field}
                   label="مکان برگزاری"
                   error={!!errors.location}
@@ -248,29 +361,123 @@ function CourseForm() {
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <Controller
-              name="status"
+              name="collegeCode"
               control={control}
-              render={({ field }) => (
-                <FormControl fullWidth error={!!errors.status}>
-                  <InputLabel id="status-label">وضعیت دوره</InputLabel>
-                  <Select {...field} labelId="status-label" label="وضعیت دوره">
-                    <MenuItem value={1}>فعال</MenuItem>
-                    <MenuItem value={0}>غیر فعال</MenuItem>
-                  </Select>
-                  <FormHelperText>{errors.status?.message}</FormHelperText>
-                </FormControl>
+              render={({
+                field: { onChange, value },
+                fieldState: { error },
+              }) => (
+                <Autocomplete
+                  disablePortal
+                  options={colleges}
+                  loading={isCollegesLoading}
+                  getOptionLabel={(option) => option.title || ""}
+                  value={
+                    colleges?.find((college) => college.code === value) || null
+                  }
+                  onChange={(_, newValue) => {
+                    const code = newValue?.code ?? null;
+                    onChange(code);
+                    setCollegeCode(code);
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="دانشکده"
+                      size="small"
+                      error={!!error}
+                      helperText={error ? error.message : ""}
+                    />
+                  )}
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Controller
+              name="departmentCode"
+              control={control}
+              render={({
+                field: { onChange, value },
+                fieldState: { error },
+              }) => (
+                <Autocomplete
+                  disablePortal
+                  options={departments}
+                  loading={isDepartmentsLoading}
+                  getOptionLabel={(option) => option.title || ""}
+                  value={departments?.find((dep) => dep.code === value) || null}
+                  onChange={(_, newValue) => {
+                    const code = newValue?.code ?? null;
+                    onChange(code);
+                    setDepartmentCode(code);
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="گروه آموزشی"
+                      size="small"
+                      error={!!error}
+                      helperText={error ? error.message : ""}
+                    />
+                  )}
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Controller
+              name="fieldOfStudyCode"
+              control={control}
+              render={({
+                field: { onChange, value },
+                fieldState: { error },
+              }) => (
+                <Autocomplete
+                  disablePortal
+                  options={fieldOfStudy}
+                  loading={isFieldOfStudyLoading}
+                  getOptionLabel={(option) => option.title || ""}
+                  value={
+                    fieldOfStudy.find((field) => field.code === value) || null
+                  }
+                  onChange={(_, newValue) => {
+                    const code = newValue?.code ?? null;
+                    onChange(code);
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="رشته تحصیلی"
+                      size="small"
+                      error={!!error}
+                      helperText={error ? error.message : ""}
+                    />
+                  )}
+                />
               )}
             />
           </Grid>
         </Grid>
 
-        <div className="flex justify-end mt-2">
+        <div className="flex gap-10 justify-end mt-2">
           <Button
-            size="large"
+            size="small"
+            color="primary"
+            variant="outlined"
+            type="button"
+            endIcon={<CloseRoundedIcon fontSize="medium" />}
+            onClick={onClean}
+          >
+            پاک کردن
+          </Button>
+          <Button
+            size="medium"
             color="primary"
             variant="contained"
             type="submit"
-            endIcon={<CheckIcon />}
+            endIcon={<DoneOutlineRoundedIcon fontSize="medium" />}
+            disabled={!isValid}
           >
             ثبت
           </Button>

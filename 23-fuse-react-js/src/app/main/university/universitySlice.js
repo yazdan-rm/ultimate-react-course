@@ -18,6 +18,9 @@ export const universitySlice = createSlice({
     updateData(state, action) {
       state.data = action.payload;
     },
+    resetData(state) {
+      state.data = {};
+    },
   },
   selectors: {
     selectRefreshGridFlag: (state) => state.refreshGrid,
@@ -28,7 +31,7 @@ export const universitySlice = createSlice({
 rootReducer.inject(universitySlice);
 const injectedSlice = universitySlice.injectInto(rootReducer);
 
-export const { refreshAgGrid, updateData } = universitySlice.actions;
+export const { refreshAgGrid, updateData, resetData } = universitySlice.actions;
 
 export default universitySlice.reducer;
 
