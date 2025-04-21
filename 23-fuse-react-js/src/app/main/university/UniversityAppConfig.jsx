@@ -1,6 +1,7 @@
 import UniversityApp from "./UniversityApp.jsx";
 import Course from "./course/Course.jsx";
 import CoursePrerequisites from "./coursePrerequisites/CoursePrerequisites.jsx";
+import CourseSchedule from "./courseSchedule/CourseSchedule.jsx";
 import Dashboard from "./dashboard/Dashboard.jsx";
 
 const UniversityAppConfig = {
@@ -18,8 +19,12 @@ const UniversityAppConfig = {
           element: <Course />,
         },
         {
-          path: "course/:courseId",
+          path: "course/course-prerequisites/:courseId",
           element: <CoursePrerequisites />,
+        },
+        {
+          path: "course/course-schedules/:courseId",
+          element: <CourseSchedule />,
         },
       ],
     },

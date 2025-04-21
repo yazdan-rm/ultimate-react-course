@@ -35,7 +35,6 @@ function CoursePrerequisiteTable() {
   };
 
   const handleDelete = (data) => {
-    console.log(data);
     deleteTrigger(data.id)
       .unwrap()
       .then((data) => {

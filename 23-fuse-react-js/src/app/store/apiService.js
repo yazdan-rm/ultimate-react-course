@@ -6,7 +6,7 @@ const axiosBaseQuery =
   () =>
   async ({ url, method, data, params }) => {
     try {
-      Axios.defaults.baseURL = "http://localhost:8080/api/v1";
+      Axios.defaults.baseURL = "https://localhost:8080/api/v1";
       const language = i18next.language;
 
       const result = await Axios({

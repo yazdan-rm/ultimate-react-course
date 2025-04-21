@@ -13,6 +13,17 @@ export function toShamsiDate(isoDateStr) {
   return `${jy}/${jm.toString().padStart(2, "0")}/${jd.toString().padStart(2, "0")}`;
 }
 
+export function toLocalTime(isoDateStr) {
+  if (!isoDateStr) return "";
+  const date = new Date(isoDateStr);
+  return date.toLocaleTimeString("fa-IR", {
+    timeZone: "Asia/Tehran",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
 const GenderMap = {
   1: "مرد",
   2: "زن",
@@ -20,7 +31,7 @@ const GenderMap = {
 };
 
 export function getGenderText(value) {
-  return GenderMap[value] || "نامشخص";
+  return GenderMap[value] || "";
 }
 
 const CoursePrerequisiteTypes = {
@@ -31,7 +42,7 @@ const CoursePrerequisiteTypes = {
 };
 
 export function getCoursePrerequisiteText(value) {
-  return CoursePrerequisiteTypes[value] || "نامشخص";
+  return CoursePrerequisiteTypes[value] || "";
 }
 
 const EducationalLevelMap = {
@@ -46,7 +57,7 @@ const EducationalLevelMap = {
 };
 
 export function getEducationalLevelText(value) {
-  return EducationalLevelMap[value] || "نامشخص";
+  return EducationalLevelMap[value] || "";
 }
 
 export function generateSemesters() {
@@ -102,4 +113,18 @@ export function getSemesterTitleByCode(code) {
     default:
       return "کد نيمسال نامعتبر است";
   }
+}
+
+const DayOfWeek = {
+  SATURDAY: "شنبه",
+  SUNDAY: "یک‌شنبه",
+  MONDAY: "دوشنبه",
+  TUESDAY: "سه‌شنبه",
+  WEDNESDAY: "چهارشنبه",
+  THURSDAY: "پنج‌شنبه",
+  FRIDAY: "جمعه",
+};
+
+export function getPersianDayOfWeek(value) {
+  return DayOfWeek[value] || "";
 }

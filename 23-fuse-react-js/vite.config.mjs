@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import svgrPlugin from "vite-plugin-svgr";
 import jsconfigPaths from "vite-jsconfig-paths";
+import fs from "fs";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -31,6 +32,10 @@ export default defineConfig({
   server: {
     open: true,
     port: 3001,
+    https: {
+      key: fs.readFileSync("./src/cert/key.pem"),
+      cert: fs.readFileSync("./src/cert/cert.pem"),
+    },
   },
   define: {
     global: "window",
