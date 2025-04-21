@@ -29,6 +29,8 @@ import { useEffect, useState } from "react";
 import { generateSemesters } from "../../../utils/UmsUtils.js";
 import Autocomplete from "@mui/material/Autocomplete";
 import DoneOutlineRoundedIcon from "@mui/icons-material/DoneOutlineRounded";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
 
 const defaultValues = {
   id: "",
@@ -158,9 +160,11 @@ function CourseForm() {
         );
     }
 
-    reset(defaultValues);
-    dispatch(refreshAgGrid());
-    dispatch(resetData());
+    setTimeout(() => {
+      reset(defaultValues);
+      dispatch(refreshAgGrid());
+      dispatch(resetData());
+    }, 500);
   };
 
   const onClean = () => {
@@ -190,6 +194,9 @@ function CourseForm() {
           },
         }}
       >
+        <Divider>
+          <Typography>مشخصات دوره</Typography>
+        </Divider>
         <Grid container spacing={1}>
           <Grid item xs={12} sm={6} md={3}>
             <Controller
@@ -268,7 +275,6 @@ function CourseForm() {
               )}
             />
           </Grid>
-
           <Grid item xs={12} sm={6} md={3}>
             <Controller
               name="units"
@@ -359,6 +365,11 @@ function CourseForm() {
               )}
             />
           </Grid>
+        </Grid>
+        <Divider>
+          <Typography>مشخصات گروه آموزشی</Typography>
+        </Divider>
+        <Grid container spacing={1}>
           <Grid item xs={12} sm={6} md={3}>
             <Controller
               name="collegeCode"
@@ -459,7 +470,6 @@ function CourseForm() {
             />
           </Grid>
         </Grid>
-
         <div className="flex gap-10 justify-end mt-2">
           <Button
             size="small"

@@ -34,13 +34,10 @@ const UniversityApi = api.injectEndpoints({
       }),
     }),
     getAllCourses: build.query({
-      query: (courseId) => {
-        console.log("test", courseId);
-        return {
-          url: `/courses/get-all/${courseId}`,
-          method: "GET",
-        };
-      },
+      query: (courseId) => ({
+        url: `/courses/get-all/${courseId}`,
+        method: "GET",
+      }),
     }),
     createCoursePrerequisite: build.mutation({
       query: (newCoursePrerequisite) => ({
@@ -92,6 +89,38 @@ const UniversityApi = api.injectEndpoints({
         method: "GET",
       }),
     }),
+    createCourseSchedule: build.mutation({
+      query: (courseSchedule) => ({
+        url: `/course-schedules`,
+        method: "POST",
+        data: courseSchedule,
+      }),
+    }),
+    updateCourseSchedule: build.mutation({
+      query: (courseSchedule) => ({
+        url: `/course-schedules/${courseSchedule.id}`,
+        method: "PUT",
+        data: courseSchedule,
+      }),
+    }),
+    deleteCourseSchedule: build.mutation({
+      query: (id) => ({
+        url: `/course-schedules/${id}`,
+        method: "DELETE",
+      }),
+    }),
+    getPagedCourseSchedule: build.query({
+      query: ({
+        pageNo,
+        pageSize,
+        sortField = "createDate",
+        sortDir = "desc",
+        masterId,
+      }) => ({
+        url: `/course-schedules?pageNo=${pageNo}&pageSize=${pageSize}&sortField=${sortField}&sortDir=${sortDir}&courseId=${masterId}`,
+        method: "GET",
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -111,4 +140,8 @@ export const {
   useGetAllCollegesQuery,
   useLazyGetDepartmentsByCollegeCodeQuery,
   useLazyGetFieldOfStudyByDepartmentCodeQuery,
+  useCreateCourseScheduleMutation,
+  useUpdateCourseScheduleMutation,
+  useDeleteCourseScheduleMutation,
+  useLazyGetPagedCourseScheduleQuery,
 } = UniversityApi;

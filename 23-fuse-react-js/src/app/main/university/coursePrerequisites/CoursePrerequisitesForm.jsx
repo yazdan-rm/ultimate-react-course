@@ -27,6 +27,8 @@ import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import FormHelperText from "@mui/material/FormHelperText";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
 
 const defaultValues = {
   id: "",
@@ -61,6 +63,10 @@ function CoursePrerequisitesForm() {
     refetch();
   }, []);
 
+  useEffect(() => {
+    reset(dataForUpdate);
+  }, [dataForUpdate]);
+
   const {
     handleSubmit,
     control,
@@ -71,10 +77,6 @@ function CoursePrerequisitesForm() {
     resolver: zodResolver(schema),
     mode: "all",
   });
-
-  useEffect(() => {
-    reset(dataForUpdate);
-  }, [dataForUpdate]);
 
   const onSubmit = (data) => {
     const payload = {
@@ -140,6 +142,9 @@ function CoursePrerequisitesForm() {
           },
         }}
       >
+        <Divider>
+          <Typography>مشخصات پیش نیاز دوره</Typography>
+        </Divider>
         <Grid container spacing={1}>
           <Grid item xs={12} sm={6} md={3}>
             <Controller
@@ -179,7 +184,7 @@ function CoursePrerequisitesForm() {
                       label="لیست دروس تعریف شده"
                       size="small"
                       error={!!error}
-                      helperText={error ? error.message : ""}
+                      helperText={errors.prerequisiteId?.message}
                     />
                   )}
                 />

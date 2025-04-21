@@ -11,6 +11,7 @@ import { useDeleteCourseMutation } from "../UniversityApi.js";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice.js";
 import AddBoxRoundedIcon from "@mui/icons-material/AddBoxRounded";
 import { Link } from "react-router-dom";
+import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
 
 function ActionButtons({ data }) {
   const dispatch = useAppDispatch();
@@ -23,7 +24,7 @@ function ActionButtons({ data }) {
     handleClose();
   };
 
-  const handlePrerequisite = () => {
+  const handleRedirections = () => {
     handleClose();
   };
 
@@ -55,24 +56,40 @@ function ActionButtons({ data }) {
       <Button className="flex justify-center" onClick={handleClick}>
         <MoreVertRoundedIcon fontSize="medium" />
       </Button>
+
       <Menu open={open} anchorEl={anchorEl} onClose={handleClose}>
         <Link
-          to={`/app/university/course/${data?.id}`}
+          to={`/app/university/course/course-schedules/${data?.id}`}
           style={{ textDecoration: "none", color: "inherit" }}
         >
           <MenuItem
-            className="flex gap-4 justify-around"
-            onClick={handlePrerequisite}
+            className="flex gap-4 justify-between"
+            onClick={handleRedirections}
+          >
+            <p>برنامه ارائه</p>
+            <CalendarMonthRoundedIcon
+              className="text-gray-700"
+              fontSize="medium"
+            />
+          </MenuItem>
+        </Link>
+        <Link
+          to={`/app/university/course/course-prerequisites/${data?.id}`}
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          <MenuItem
+            className="flex gap-4 justify-between"
+            onClick={handleRedirections}
           >
             <p>پیش نیاز</p>
             <AddBoxRoundedIcon className="text-gray-700" fontSize="medium" />
           </MenuItem>
         </Link>
-        <MenuItem className="flex gap-4 justify-around" onClick={handleEdit}>
+        <MenuItem className="flex gap-4 justify-between" onClick={handleEdit}>
           <p>ویرایش</p>
           <EditOutlinedIcon className="text-blue-500" fontSize="medium" />
         </MenuItem>
-        <MenuItem className="flex gap-4 justify-around" onClick={handleDelete}>
+        <MenuItem className="flex gap-4 justify-between" onClick={handleDelete}>
           <p>حذف</p>
           <DeleteIcon className="text-red-500" fontSize="medium" />
         </MenuItem>
