@@ -8,6 +8,7 @@ import {
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 import config from "./jwtAuthConfig";
+import Cookies from "js-cookie";
 
 const defaultAuthContext = {
   isAuthenticated: false,
@@ -32,19 +33,25 @@ function JwtAuthProvider(props) {
   /**
    * Handle sign-in success
    */
-  const handleSignInSuccess = useCallback((userData, accessToken) => {
-    setSession(accessToken);
-    setIsAuthenticated(true);
-    setUser(userData);
-  }, []);
+  const handleSignInSuccess = useCallback(
+    (userData, accessToken, xsrfToken) => {
+      setSession(accessToken, xsrfToken);
+      setIsAuthenticated(true);
+      setUser(userData);
+    },
+    [],
+  );
   /**
    * Handle sign-up success
    */
-  const handleSignUpSuccess = useCallback((userData, accessToken) => {
-    setSession(accessToken);
-    setIsAuthenticated(true);
-    setUser(userData);
-  }, []);
+  const handleSignUpSuccess = useCallback(
+    (userData, accessToken, xsrfToken) => {
+      setSession(accessToken, xsrfToken);
+      setIsAuthenticated(true);
+      setUser(userData);
+    },
+    [],
+  );
   /**
    * Handle sign-in failure
    */
@@ -72,20 +79,24 @@ function JwtAuthProvider(props) {
     setUser(null);
   }, []);
   // Set session
-  const setSession = useCallback((accessToken) => {
+  const setSession = useCallback((accessToken, xsrfToken) => {
     if (accessToken) {
-      localStorage.setItem(config.tokenStorageKey, accessToken);
+      localStorage.setItem(config.jwtTokenStorageKey, accessToken);
+      localStorage.setItem(config.xsrfTokenStorageKey, xsrfToken);
       axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+      axios.defaults.headers.common["X-XSRF-TOKEN"] = xsrfToken;
     }
   }, []);
   // Reset session
   const resetSession = useCallback(() => {
-    localStorage.removeItem(config.tokenStorageKey);
+    localStorage.removeItem(config.jwtTokenStorageKey);
+    localStorage.removeItem(config.xsrfTokenStorageKey);
+    delete axios.defaults.headers.common["X-XSRF-TOKEN"];
     delete axios.defaults.headers.common.Authorization;
   }, []);
   // Get access token from local storage
   const getAccessToken = useCallback(() => {
-    return localStorage.getItem(config.tokenStorageKey);
+    return localStorage.getItem(config.jwtTokenStorageKey);
   }, []);
   // Check if the access token is valid
   const isTokenValid = useCallback((accessToken) => {
@@ -105,19 +116,21 @@ function JwtAuthProvider(props) {
   useEffect(() => {
     const attemptAutoLogin = async () => {
       const accessToken = getAccessToken();
-
       if (isTokenValid(accessToken)) {
         try {
           setIsLoading(true);
           const response = await axios.get(config.getUserUrl, {
-            headers: { Authorization: `Bearer ${accessToken}` },
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
           });
           const userData = response?.data;
-          handleSignInSuccess(userData, accessToken);
+          const xsrfToken = Cookies.get("XSRF-TOKEN");
+
+          handleSignInSuccess(userData, accessToken, xsrfToken);
           return true;
         } catch (error) {
-          const axiosError = error;
-          handleSignInFailure(axiosError);
+          handleSignInFailure(error);
           return false;
         }
       } else {
@@ -205,7 +218,7 @@ function JwtAuthProvider(props) {
       const accessToken = response?.headers?.["New-Access-Token"];
 
       if (accessToken) {
-        setSession(accessToken);
+        setSession(accessToken, null);
         return accessToken;
       }
 
@@ -226,9 +239,9 @@ function JwtAuthProvider(props) {
       axios.interceptors.response.use(
         (response) => {
           const newAccessToken = response?.headers?.["New-Access-Token"];
-
+          const xsrfToken = Cookies.get("XSRF-TOKEN");
           if (newAccessToken) {
-            setSession(newAccessToken);
+            setSession(newAccessToken, xsrfToken);
           }
 
           return response;
