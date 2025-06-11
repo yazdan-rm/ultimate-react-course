@@ -68,6 +68,11 @@ function Configurator() {
       prevUserSettings &&
       !_.isEqual(userSettings, prevUserSettings)
     ) {
+      console.log(
+        "user setting ",
+        userSettings,
+        _.setIn(user, "data.settings", userSettings),
+      );
       updateUser(_.setIn(user, "data.settings", userSettings));
     }
   }, [isUserGuest, userSettings]);

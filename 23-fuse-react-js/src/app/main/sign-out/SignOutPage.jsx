@@ -1,27 +1,13 @@
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
-import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useState } from "react";
 
 /**
  * The sign out page.
  */
 function SignOutPage() {
-  const navigate = useNavigate();
   const [countdown, setCountdown] = useState(5);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          navigate("/sign-in");
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  }, []);
-
   return (
     <div
       className="flex min-w-0 flex-auto flex-col items-center sm:justify-center bg-cover bg-center"

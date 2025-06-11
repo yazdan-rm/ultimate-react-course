@@ -8,9 +8,11 @@ import {
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 import config from "./jwtAuthConfig";
-import Cookies from "js-cookie";
+import UserModel from "../../user/models/UserModel.js";
+import Keycloak from "keycloak-js";
 
 const defaultAuthContext = {
+  keycloak: null,
   isAuthenticated: false,
   isLoading: false,
   user: null,
@@ -24,7 +26,14 @@ const defaultAuthContext = {
 };
 export const JwtAuthContext = createContext(defaultAuthContext);
 
+const initOption = {
+  url: config.authUrl,
+  realm: config.realm,
+  clientId: config.clientId,
+};
+
 function JwtAuthProvider(props) {
+  const [keycloak, setKeycloak] = useState(null);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -33,25 +42,19 @@ function JwtAuthProvider(props) {
   /**
    * Handle sign-in success
    */
-  const handleSignInSuccess = useCallback(
-    (userData, accessToken, xsrfToken) => {
-      setSession(accessToken, xsrfToken);
-      setIsAuthenticated(true);
-      setUser(userData);
-    },
-    [],
-  );
+  const handleSignInSuccess = useCallback((userData, accessToken) => {
+    setSession(accessToken);
+    setIsAuthenticated(true);
+    setUser(userData);
+  }, []);
   /**
    * Handle sign-up success
    */
-  const handleSignUpSuccess = useCallback(
-    (userData, accessToken, xsrfToken) => {
-      setSession(accessToken, xsrfToken);
-      setIsAuthenticated(true);
-      setUser(userData);
-    },
-    [],
-  );
+  const handleSignUpSuccess = useCallback((userData, accessToken) => {
+    setSession(accessToken);
+    setIsAuthenticated(true);
+    setUser(userData);
+  }, []);
   /**
    * Handle sign-in failure
    */
@@ -79,19 +82,15 @@ function JwtAuthProvider(props) {
     setUser(null);
   }, []);
   // Set session
-  const setSession = useCallback((accessToken, xsrfToken) => {
+  const setSession = useCallback((accessToken) => {
     if (accessToken) {
       localStorage.setItem(config.jwtTokenStorageKey, accessToken);
-      localStorage.setItem(config.xsrfTokenStorageKey, xsrfToken);
       axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-      axios.defaults.headers.common["X-XSRF-TOKEN"] = xsrfToken;
     }
   }, []);
   // Reset session
   const resetSession = useCallback(() => {
     localStorage.removeItem(config.jwtTokenStorageKey);
-    localStorage.removeItem(config.xsrfTokenStorageKey);
-    delete axios.defaults.headers.common["X-XSRF-TOKEN"];
     delete axios.defaults.headers.common.Authorization;
   }, []);
   // Get access token from local storage
@@ -125,7 +124,6 @@ function JwtAuthProvider(props) {
             },
           });
           const userData = response?.data;
-          const xsrfToken = Cookies.get("XSRF-TOKEN");
 
           handleSignInSuccess(userData, accessToken, xsrfToken);
           return true;
@@ -167,15 +165,55 @@ function JwtAuthProvider(props) {
       return axiosError;
     }
   };
-  // Refactor signIn function
-  const signIn = (credentials) => {
-    return handleRequest(
-      config.signInUrl,
-      credentials,
-      handleSignInSuccess,
-      handleSignInFailure,
-    );
-  };
+
+  useEffect(() => {
+    const kc = new Keycloak(initOption);
+    setKeycloak(kc);
+
+    const initKeycloak = async () => {
+      try {
+        const authenticated = await kc.init({
+          onLoad: "login-required",
+          checkLoginIframe: false,
+          pkceMethod: "S256",
+          enableAutoRefresh: true,
+          scope: "openid profile email",
+        });
+
+        setIsLoading(false);
+
+        if (authenticated) {
+          // Get basic info from the token
+          const user = kc.tokenParsed;
+
+          // Fetch additional user info including picture
+          const userInfo = await kc.loadUserInfo();
+
+          const userModel = UserModel({
+            uid: user.sub,
+            role:
+              user?.resource_access?.["ums-client-id"]?.roles?.[0] || "guest",
+            data: {
+              displayName: user.name || user.preferred_username,
+              // Use picture from userInfo if available
+              photoURL: userInfo?.picture || "",
+              email: user?.email || userInfo?.email || "",
+              shortcuts: [],
+              settings: {},
+            },
+          });
+
+          handleSignInSuccess(userModel, kc.token);
+        }
+      } catch (error) {
+        console.error("Keycloak init failed:", error);
+        handleSignInFailure(error);
+      }
+    };
+
+    initKeycloak();
+  }, []);
+
   // Refactor signUp function
   const signUp = useCallback((data) => {
     return handleRequest(
@@ -185,6 +223,7 @@ function JwtAuthProvider(props) {
       handleSignUpFailure,
     );
   }, []);
+
   /**
    * Sign out
    */
@@ -192,14 +231,19 @@ function JwtAuthProvider(props) {
     resetSession();
     setIsAuthenticated(false);
     setUser(null);
-  }, []);
+
+    keycloak?.logout({
+      responseType: window.location.origin,
+    });
+  }, [keycloak]);
   /**
    * Update user
    */
   const updateUser = useCallback(async (userData) => {
     try {
-      const response = await axios.put(config.updateUserUrl, userData);
-      const updatedUserData = response?.data;
+      // const response = await axios.put(config.updateUserUrl, userData);
+      // const updatedUserData = response?.data;
+      const updatedUserData = userData;
       setUser(updatedUserData);
       return null;
     } catch (error) {
@@ -212,54 +256,20 @@ function JwtAuthProvider(props) {
    * Refresh access token
    */
   const refreshToken = async () => {
-    setIsLoading(true);
     try {
-      const response = await axios.post(config.tokenRefreshUrl);
-      const accessToken = response?.headers?.["New-Access-Token"];
-
-      if (accessToken) {
-        setSession(accessToken, null);
-        return accessToken;
-      }
-
-      return null;
+      setIsLoading(true);
+      console.log("keycloak object from refreshToken function ", keycloak);
+      await keycloak?.updateToken(30);
+      setSession(keycloak.token);
+      return keycloak.token;
     } catch (error) {
-      const axiosError = error;
-      handleError(axiosError);
-      return axiosError;
+      console.error(error);
+      keycloak.logout({
+        redirectUri: window.location.origin,
+      });
     }
   };
-  /**
-   * if a successful response contains a new Authorization header,
-   * updates the access token from it.
-   *
-   */
-  useEffect(() => {
-    if (config.updateTokenFromHeader && isAuthenticated) {
-      axios.interceptors.response.use(
-        (response) => {
-          const newAccessToken = response?.headers?.["New-Access-Token"];
-          const xsrfToken = Cookies.get("XSRF-TOKEN");
-          if (newAccessToken) {
-            setSession(newAccessToken, xsrfToken);
-          }
 
-          return response;
-        },
-        (error) => {
-          const axiosError = error;
-
-          if (axiosError?.response?.status === 401) {
-            signOut();
-            // eslint-disable-next-line no-console
-            console.warn("Unauthorized request. User was signed out.");
-          }
-
-          return Promise.reject(axiosError);
-        },
-      );
-    }
-  }, [isAuthenticated]);
   useEffect(() => {
     if (user) {
       setAuthStatus("authenticated");
@@ -267,13 +277,13 @@ function JwtAuthProvider(props) {
       setAuthStatus("unauthenticated");
     }
   }, [user]);
+
   const authContextValue = useMemo(
     () => ({
       user,
       isAuthenticated,
       authStatus,
       isLoading,
-      signIn,
       signUp,
       signOut,
       updateUser,
@@ -284,7 +294,6 @@ function JwtAuthProvider(props) {
       user,
       isAuthenticated,
       isLoading,
-      signIn,
       signUp,
       signOut,
       updateUser,

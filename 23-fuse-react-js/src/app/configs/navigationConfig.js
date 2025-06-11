@@ -15,6 +15,7 @@ const navigationConfig = [
     type: "item",
     icon: "heroicons-solid:clipboard-list",
     url: "/",
+    auth: ["user"],
   },
   {
     id: "courses",
