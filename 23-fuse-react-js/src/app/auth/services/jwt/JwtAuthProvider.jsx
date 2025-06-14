@@ -10,6 +10,10 @@ import jwtDecode from "jwt-decode";
 import config from "./jwtAuthConfig";
 import UserModel from "../../user/models/UserModel.js";
 import Keycloak from "keycloak-js";
+import {
+  useLazyGetUserQuery,
+  useUpdateUserMutation,
+} from "../../../main/university/UniversityApi.js";
 
 const defaultAuthContext = {
   keycloak: null,
@@ -33,6 +37,8 @@ const initOption = {
 };
 
 function JwtAuthProvider(props) {
+  const [updateUserMutation] = useUpdateUserMutation();
+  const [triggerGetUser] = useLazyGetUserQuery();
   const [keycloak, setKeycloak] = useState(null);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -85,7 +91,6 @@ function JwtAuthProvider(props) {
   const setSession = useCallback((accessToken) => {
     if (accessToken) {
       localStorage.setItem(config.jwtTokenStorageKey, accessToken);
-      axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
     }
   }, []);
   // Reset session
@@ -185,9 +190,13 @@ function JwtAuthProvider(props) {
         if (authenticated) {
           // Get basic info from the token
           const user = kc.tokenParsed;
-
+          const token = kc.token;
+          axios.defaults.headers.common.Authorization = `Bearer ${token}`;
           // Fetch additional user info including picture
           const userInfo = await kc.loadUserInfo();
+          const additionalUserInfo = await triggerGetUser({
+            uid: user.sub,
+          }).unwrap();
 
           const userModel = UserModel({
             uid: user.sub,
@@ -199,11 +208,11 @@ function JwtAuthProvider(props) {
               photoURL: userInfo?.picture || "",
               email: user?.email || userInfo?.email || "",
               shortcuts: [],
-              settings: {},
+              settings: JSON.parse(additionalUserInfo.data.studentUiSetting),
             },
           });
 
-          handleSignInSuccess(userModel, kc.token);
+          handleSignInSuccess(userModel, token);
         }
       } catch (error) {
         console.error("Keycloak init failed:", error);
@@ -240,10 +249,25 @@ function JwtAuthProvider(props) {
    * Update user
    */
   const updateUser = useCallback(async (userData) => {
+    const studentDto = {
+      semester: userData.data.semester,
+      educationalLevel: parseInt(userData.data.educationalLevel),
+      nationalCode: userData.data.nationalCode,
+      keycloakUserId: userData.uid,
+      studentUiSetting: JSON.stringify(userData.data.settings),
+      universityDTO: userData.data.university,
+    };
     try {
-      // const response = await axios.put(config.updateUserUrl, userData);
-      // const updatedUserData = response?.data;
-      const updatedUserData = userData;
+      const response = await updateUserMutation({
+        uid: userData.uid,
+        body: studentDto,
+      }).unwrap();
+
+      const updatedUserData = {
+        ...response.data,
+        setting: JSON.parse(response.data.studentUiSetting), // parsed coming in
+      };
+
       setUser(updatedUserData);
       return null;
     } catch (error) {

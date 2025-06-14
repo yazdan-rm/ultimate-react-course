@@ -121,6 +121,19 @@ const UniversityApi = api.injectEndpoints({
         method: "GET",
       }),
     }),
+    updateUser: build.mutation({
+      query: ({ uid, body }) => ({
+        url: `/student/${uid}`,
+        method: "PUT",
+        data: body,
+      }),
+    }),
+    getUser: build.query({
+      query: ({ uid }) => ({
+        url: `/student/${uid}`,
+        method: "GET",
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -144,4 +157,6 @@ export const {
   useUpdateCourseScheduleMutation,
   useDeleteCourseScheduleMutation,
   useLazyGetPagedCourseScheduleQuery,
+  useUpdateUserMutation,
+  useLazyGetUserQuery,
 } = UniversityApi;
