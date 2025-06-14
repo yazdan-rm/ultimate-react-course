@@ -9,7 +9,7 @@ const jwtAuthConfig = {
   getUserUrl:
     import.meta.env.VITE_AUTH_URL +
     "realms/UMS/protocol/openid-connect/userinfo",
-  updateUserUrl: "mock-api/auth/user",
+  updateUserUrl: "/student",
   updateTokenFromHeader: true,
 };
 export default jwtAuthConfig;

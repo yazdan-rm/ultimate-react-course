@@ -10,6 +10,10 @@ import jwtDecode from "jwt-decode";
 import config from "./jwtAuthConfig";
 import UserModel from "../../user/models/UserModel.js";
 import Keycloak from "keycloak-js";
+import {
+  useLazyGetUserQuery,
+  useUpdateUserMutation,
+} from "../../../main/university/UniversityApi.js";
 
 const defaultAuthContext = {
   keycloak: null,
@@ -33,6 +37,8 @@ const initOption = {
 };
 
 function JwtAuthProvider(props) {
+  const [updateUserMutation] = useUpdateUserMutation();
+  const [triggerGetUser] = useLazyGetUserQuery();
   const [keycloak, setKeycloak] = useState(null);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -185,9 +191,13 @@ function JwtAuthProvider(props) {
         if (authenticated) {
           // Get basic info from the token
           const user = kc.tokenParsed;
-
+          const token = kc.token;
+          axios.defaults.headers.common.Authorization = `Bearer ${token}`;
           // Fetch additional user info including picture
           const userInfo = await kc.loadUserInfo();
+          const additionalUserInfo = await triggerGetUser({
+            uid: user.sub,
+          }).unwrap();
 
           const userModel = UserModel({
             uid: user.sub,
@@ -199,11 +209,11 @@ function JwtAuthProvider(props) {
               photoURL: userInfo?.picture || "",
               email: user?.email || userInfo?.email || "",
               shortcuts: [],
-              settings: {},
+              settings: JSON.parse(additionalUserInfo.data.studentUiSetting),
             },
           });
 
-          handleSignInSuccess(userModel, kc.token);
+          handleSignInSuccess(userModel, token);
         }
       } catch (error) {
         console.error("Keycloak init failed:", error);
@@ -240,10 +250,25 @@ function JwtAuthProvider(props) {
    * Update user
    */
   const updateUser = useCallback(async (userData) => {
+    const studentDto = {
+      semester: userData.data.semester,
+      educationalLevel: parseInt(userData.data.educationalLevel),
+      nationalCode: userData.data.nationalCode,
+      keycloakUserId: userData.uid,
+      studentUiSetting: JSON.stringify(userData.data.settings),
+      universityDTO: userData.data.university,
+    };
     try {
-      // const response = await axios.put(config.updateUserUrl, userData);
-      // const updatedUserData = response?.data;
-      const updatedUserData = userData;
+      const response = await updateUserMutation({
+        uid: userData.uid,
+        body: studentDto,
+      }).unwrap();
+
+      const updatedUserData = {
+        ...response.data,
+        setting: JSON.parse(response.data.studentUiSetting), // parsed coming in
+      };
+
       setUser(updatedUserData);
       return null;
     } catch (error) {
@@ -258,7 +283,6 @@ function JwtAuthProvider(props) {
   const refreshToken = async () => {
     try {
       setIsLoading(true);
-      console.log("keycloak object from refreshToken function ", keycloak);
       await keycloak?.updateToken(30);
       setSession(keycloak.token);
       return keycloak.token;
@@ -269,6 +293,57 @@ function JwtAuthProvider(props) {
       });
     }
   };
+
+  useEffect(() => {
+    if (config.updateTokenFromHeader && isAuthenticated) {
+      const interceptor = axios.interceptors.response.use(
+        (response) => {
+          const newAccessToken = response?.headers?.["Authorization"];
+          if (newAccessToken) {
+            setSession(newAccessToken);
+          }
+          return response;
+        },
+        async (error) => {
+          const originalRequest = error.config;
+
+          if (
+            error.response?.status === 401 &&
+            !originalRequest._retry &&
+            isTokenValid(getAccessToken()) === false
+          ) {
+            originalRequest._retry = true;
+
+            try {
+              const newAccessToken = await refreshToken();
+
+              if (typeof newAccessToken === "string") {
+                originalRequest.headers["Authorization"] =
+                  `Bearer ${newAccessToken}`;
+                return axios(originalRequest); // Retry the original request
+              }
+            } catch (refreshError) {
+              console.warn("Refresh token failed:", refreshError);
+              signOut();
+            }
+          }
+
+          return Promise.reject(error);
+        },
+      );
+
+      return () => {
+        axios.interceptors.response.eject(interceptor); // Cleanup on unmount
+      };
+    }
+  }, [
+    isAuthenticated,
+    refreshToken,
+    getAccessToken,
+    isTokenValid,
+    setSession,
+    signOut,
+  ]);
 
   useEffect(() => {
     if (user) {
