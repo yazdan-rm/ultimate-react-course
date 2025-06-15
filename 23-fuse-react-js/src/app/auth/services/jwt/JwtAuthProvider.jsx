@@ -285,6 +285,7 @@ function JwtAuthProvider(props) {
       setIsLoading(true);
       await keycloak?.updateToken(30);
       setSession(keycloak.token);
+      setIsLoading(false);
       return keycloak.token;
     } catch (error) {
       console.error(error);
