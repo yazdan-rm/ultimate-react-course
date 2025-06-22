@@ -1,6 +1,6 @@
 import {
   useDeleteCourseScheduleMutation,
-  useLazyGetPagedCourseScheduleQuery,
+  useLazyGetRowsCourseScheduleQuery,
 } from "../UniversityApi.js";
 import { useAppDispatch, useAppSelector } from "app/store/hooks.js";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -12,17 +12,13 @@ import {
 } from "../universitySlice.js";
 import { useParams } from "react-router-dom";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice.js";
-import {
-  getPersianDayOfWeek,
-  toLocalTime,
-  toShamsiDate,
-} from "../../../utils/UmsUtils.js";
+import { toShamsiDate } from "../../../utils/UmsUtils.js";
 import AgGrid from "../../../utils/AgGrid.jsx";
 import * as React from "react";
 import Button from "@mui/material/Button";
 
 function CourseScheduleTable() {
-  const [trigger] = useLazyGetPagedCourseScheduleQuery();
+  const [trigger] = useLazyGetRowsCourseScheduleQuery();
   const refreshGrid = useAppSelector(selectRefreshGridFlag);
   const dispatch = useAppDispatch();
   const [deleteTrigger] = useDeleteCourseScheduleMutation();
@@ -50,15 +46,17 @@ function CourseScheduleTable() {
     {
       headerName: "تاریخ ایجاد",
       field: "createDate",
+      initialSort: "desc",
+      filter: false,
       valueFormatter: (params) => toShamsiDate(params.value),
       tooltipValueGetter: (params) => {
-        return `${params.value}`;
+        return `${toShamsiDate(params.value)}`;
       },
     },
     {
       headerName: "روز ارائه",
-      field: "dayOfWeek",
-      valueFormatter: (params) => getPersianDayOfWeek(params.value),
+      field: "daysOfWeek",
+      valueFormatter: (params) => params.value,
       tooltipValueGetter: (params) => {
         return `${params.value}`;
       },
@@ -66,26 +64,26 @@ function CourseScheduleTable() {
     {
       headerName: "ساعت شروع ارائه",
       field: "courseStartTime",
-      valueFormatter: (params) => toLocalTime(params.value),
-      tooltipValueGetter: (params) => toLocalTime(params.value),
+      valueFormatter: (params) => params.value,
+      tooltipValueGetter: (params) => params.value,
     },
     {
       headerName: "ساعت پایان ارائه",
       field: "courseEndTime",
-      valueFormatter: (params) => toLocalTime(params.value),
-      tooltipValueGetter: (params) => toLocalTime(params.value),
+      valueFormatter: (params) => params.value,
+      tooltipValueGetter: (params) => params.value,
     },
     {
       headerName: "تاریخ امتحان",
       field: "courseExamDate",
-      valueFormatter: (params) => toShamsiDate(params.value),
-      tooltipValueGetter: (params) => toShamsiDate(params.value),
+      valueFormatter: (params) => params.value,
+      tooltipValueGetter: (params) => params.value,
     },
     {
       headerName: "ساعت شروع امتحان",
       field: "courseExamTime",
-      valueFormatter: (params) => toLocalTime(params.value),
-      tooltipValueGetter: (params) => toLocalTime(params.value),
+      valueFormatter: (params) => params.value,
+      tooltipValueGetter: (params) => params.value,
     },
     {
       headerName: "ویرایش",

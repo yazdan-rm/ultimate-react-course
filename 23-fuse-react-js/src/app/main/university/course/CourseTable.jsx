@@ -1,6 +1,6 @@
 import * as React from "react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { useLazyGetPagedCoursesQuery } from "../UniversityApi.js";
+import { useLazyGetRowsCoursesQuery } from "../UniversityApi.js";
 import {
   getEducationalLevelText,
   getGenderText,
@@ -15,16 +15,19 @@ import ActionButtons from "./ActionButtons.jsx";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 function CourseTable() {
-  const [trigger] = useLazyGetPagedCoursesQuery();
+  const [trigger] = useLazyGetRowsCoursesQuery();
   const refreshGrid = useAppSelector(selectRefreshGridFlag);
 
   const columnDefs = [
     {
       headerName: "تاریخ ایجاد",
       field: "createDate",
+      filter: false,
+      minWidth: 110,
+      initialSort: "desc",
       valueFormatter: (params) => toShamsiDate(params.value),
       tooltipValueGetter: (params) => {
-        return `${params.value}`;
+        return `${toShamsiDate(params.value)}`;
       },
     },
     {
@@ -38,10 +41,11 @@ function CourseTable() {
     {
       headerName: "مقطع تحصیلی",
       field: "educationalLevel",
-      minWidth: 150,
+      filter: false,
+      minWidth: 110,
       valueFormatter: (params) => getEducationalLevelText(params.value),
       tooltipValueGetter: (params) => {
-        return `${params.value}`;
+        return `${getEducationalLevelText(params.value)}`;
       },
     },
     {
@@ -52,35 +56,10 @@ function CourseTable() {
         return `${params.value}`;
       },
     },
-    { headerName: "ظرفیت دوره", field: "capacity" },
-    {
-      headerName: "تعداد واحد درس",
-      field: "units",
-      minWidth: 120,
-    },
-    {
-      headerName: "جنسیت مجاز",
-      field: "allowedGenders",
-      valueFormatter: (params) => getGenderText(params.value),
-    },
-    {
-      headerName: "مکان برگزاری",
-      field: "location",
-      minWidth: 100,
-      tooltipValueGetter: (params) => {
-        return `${params.value}`;
-      },
-    },
-    {
-      headerName: "عملیات ها",
-      cellRenderer: (params) => <ActionButtons data={params.data} />,
-      pinned: "left",
-      width: 30,
-      sortable: false,
-    },
     {
       headerName: "نیم سال تحصیلی",
       field: "semester",
+      cellDataType: "number",
       minWidth: 170,
       valueFormatter(params) {
         return getSemesterTitleByCode(params.value);
@@ -89,9 +68,39 @@ function CourseTable() {
         return getSemesterTitleByCode(params.value);
       },
     },
+    { headerName: "ظرفیت دوره", minWidth: 110, field: "capacity" },
+    {
+      headerName: "تعداد واحد",
+      field: "courseUnits",
+      minWidth: 105,
+    },
+    {
+      headerName: "جنسیت مجاز",
+      field: "allowedGenders",
+      minWidth: 120,
+      valueFormatter: (params) => getGenderText(params.value),
+    },
+    {
+      headerName: "مکان برگزاری",
+      field: "location",
+      minWidth: 120,
+      tooltipValueGetter: (params) => {
+        return `${params.value}`;
+      },
+    },
+    {
+      headerName: "عملیات ها",
+      cellRenderer: (params) => {
+        return <ActionButtons data={params.data} />;
+      },
+      pinned: "left",
+      filter: false,
+      width: 20,
+      sortable: false,
+    },
     {
       headerName: "دانشکده",
-      field: "college",
+      field: "collegeName",
       minWidth: 100,
       tooltipValueGetter: (params) => {
         return `${params.value}`;
@@ -99,8 +108,8 @@ function CourseTable() {
     },
     {
       headerName: "گروه آموزشی",
-      field: "department",
-      minWidth: 100,
+      field: "departmentName",
+      minWidth: 115,
       tooltipValueGetter: (params) => {
         return `${params.value}`;
       },

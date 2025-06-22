@@ -28,6 +28,7 @@ import FormHelperText from "@mui/material/FormHelperText";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import { useEffect } from "react";
+import { toLocalTime, toShamsiDate } from "../../../utils/UmsUtils.js";
 
 const defaultValues = {
   id: "",
@@ -80,6 +81,10 @@ function CourseScheduleForm() {
   const onSubmit = (data) => {
     const payload = {
       ...data,
+      courseStartTime: toLocalTime(data.courseStartTime),
+      courseEndTime: toLocalTime(data.courseEndTime),
+      courseExamTime: toLocalTime(data.courseExamTime),
+      courseExamDate: toShamsiDate(data.courseExamDate),
       courseId,
     };
 
@@ -152,13 +157,13 @@ function CourseScheduleForm() {
                 <FormControl size="small" fullWidth error={!!errors.dayOfWeek}>
                   <InputLabel id="status-label">روز ارائه</InputLabel>
                   <Select {...field} labelId="day-of-week" label="روز  ارائه">
-                    <MenuItem value={"SATURDAY"}>شنبه</MenuItem>
-                    <MenuItem value={"SUNDAY"}>یک‌شنبه</MenuItem>
-                    <MenuItem value={"MONDAY"}>دوشنبه</MenuItem>
-                    <MenuItem value={"TUESDAY"}>سه‌شنبه</MenuItem>
-                    <MenuItem value={"WEDNESDAY"}>چهارشنبه</MenuItem>
-                    <MenuItem value={"THURSDAY"}>پنج‌شنبه</MenuItem>
-                    <MenuItem value={"FRIDAY"}>جمعه</MenuItem>
+                    <MenuItem value={"شنبه"}>شنبه</MenuItem>
+                    <MenuItem value={"یک‌شنبه"}>یک‌شنبه</MenuItem>
+                    <MenuItem value={"دوشنبه"}>دوشنبه</MenuItem>
+                    <MenuItem value={"سه‌شنبه"}>سه‌شنبه</MenuItem>
+                    <MenuItem value={"چهارشنبه"}>چهارشنبه</MenuItem>
+                    <MenuItem value={"پنج‌شنبه"}>پنج‌شنبه</MenuItem>
+                    <MenuItem value={"جمعه"}>جمعه</MenuItem>
                   </Select>
                   <FormHelperText>{errors.dayOfWeek?.message}</FormHelperText>
                 </FormControl>

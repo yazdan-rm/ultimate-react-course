@@ -207,10 +207,10 @@ function CoursePrerequisitesForm() {
                     labelId="prerequisiteType-label"
                     label="نوع دوره پیش نیاز"
                   >
-                    <MenuItem value={11}>پیش نیاز</MenuItem>
-                    <MenuItem value={12}>همنياز</MenuItem>
-                    <MenuItem value={13}>معادل</MenuItem>
-                    <MenuItem value={14}>متضاد</MenuItem>
+                    <MenuItem value={"پیش نیاز"}>پیش نیاز</MenuItem>
+                    <MenuItem value={"همنياز"}>همنياز</MenuItem>
+                    <MenuItem value={"معادل"}>معادل</MenuItem>
+                    <MenuItem value={"متضاد"}>متضاد</MenuItem>
                   </Select>
                   <FormHelperText>
                     {errors.prerequisiteType?.message}

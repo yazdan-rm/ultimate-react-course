@@ -51,6 +51,7 @@ const AgGrid = ({
     return {
       flex: 1,
       minWidth: 100,
+      filter: true,
       sortable: enableSorting,
     };
   }, []);
@@ -67,6 +68,7 @@ const AgGrid = ({
         maxWidth: rowNumberColumnWidth,
         valueGetter: "node.id",
         sortable: false,
+        filter: false,
         cellRenderer: (props) => {
           if (props.value !== undefined) {
             return props.value;
@@ -86,29 +88,17 @@ const AgGrid = ({
       const dataSource = {
         rowCount: undefined,
         getRows: async (gridParams) => {
-          const size = gridParams.endRow - gridParams.startRow;
-          const page = Math.floor(gridParams.startRow / size);
-          const sortModel = gridParams.sortModel[0];
-          const sortField = sortModel?.colId;
-          const sortDir = sortModel?.sort;
-
           const result = await fetchData({
-            pageNo: page,
-            pageSize: size,
-            sortField,
-            sortDir,
+            startRow: gridParams.startRow,
+            endRow: gridParams.endRow,
+            filterModel: gridParams.filterModel,
+            sortModel: gridParams.sortModel,
             masterId, // Send masterId if available
           });
 
           if (!result.isError) {
-            const {
-              content,
-              page: { totalElements },
-            } = result.data.data;
-            const lastRow =
-              gridParams.endRow >= totalElements ? totalElements : -1;
-
-            gridParams.successCallback(content, lastRow);
+            const { data, lastRow } = result.data.data;
+            gridParams.successCallback(data, lastRow);
           } else {
             dispatch(
               showMessage({

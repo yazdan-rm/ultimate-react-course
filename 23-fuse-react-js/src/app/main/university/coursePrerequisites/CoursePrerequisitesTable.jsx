@@ -1,9 +1,6 @@
 import * as React from "react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import {
-  getCoursePrerequisiteText,
-  toShamsiDate,
-} from "../../../utils/UmsUtils.js";
+import { toShamsiDate } from "../../../utils/UmsUtils.js";
 import AgGrid from "../../../utils/AgGrid.jsx";
 import { useAppDispatch, useAppSelector } from "app/store/hooks.js";
 import {
@@ -13,7 +10,7 @@ import {
 } from "../universitySlice.js";
 import {
   useDeleteCoursePrerequisiteMutation,
-  useLazyGetPagedCoursePrerequisitesQuery,
+  useLazyGetRowsCoursePrerequisitesQuery,
 } from "../UniversityApi.js";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -24,7 +21,7 @@ import { useParams } from "react-router-dom";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 function CoursePrerequisiteTable() {
-  const [trigger] = useLazyGetPagedCoursePrerequisitesQuery();
+  const [trigger] = useLazyGetRowsCoursePrerequisitesQuery();
   const refreshGrid = useAppSelector(selectRefreshGridFlag);
   const dispatch = useAppDispatch();
   const [deleteTrigger] = useDeleteCoursePrerequisiteMutation();
@@ -52,9 +49,11 @@ function CoursePrerequisiteTable() {
     {
       headerName: "تاریخ ایجاد",
       field: "createDate",
+      initialSort: "desc",
+      filter: false,
       valueFormatter: (params) => toShamsiDate(params.value),
       tooltipValueGetter: (params) => {
-        return `${params.value}`;
+        return `${toShamsiDate(params.value)}`;
       },
     },
     {
@@ -77,7 +76,7 @@ function CoursePrerequisiteTable() {
       headerName: "نوع پیش نیازی دوره",
       field: "prerequisiteType",
       minWidth: 150,
-      valueFormatter: (params) => getCoursePrerequisiteText(params.value),
+      valueFormatter: (params) => params.value,
       tooltipValueGetter: (params) => {
         return `${params.value}`;
       },

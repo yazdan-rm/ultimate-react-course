@@ -2,15 +2,11 @@ import { apiService as api } from "app/store/apiService.js";
 
 const UniversityApi = api.injectEndpoints({
   endpoints: (build) => ({
-    getPagedCourses: build.query({
-      query: ({
-        pageNo,
-        pageSize,
-        sortField = "createDate",
-        sortDir = "desc",
-      }) => ({
-        url: `/courses?pageNo=${pageNo}&pageSize=${pageSize}&sortField=${sortField}&sortDir=${sortDir}`,
-        method: "GET",
+    getRowsCourses: build.query({
+      query: (enterpriseGetRowsRequest) => ({
+        url: `/courses/get-rows`,
+        method: "POST",
+        data: enterpriseGetRowsRequest,
       }),
     }),
     createCourse: build.mutation({
@@ -59,16 +55,11 @@ const UniversityApi = api.injectEndpoints({
         method: "DELETE",
       }),
     }),
-    getPagedCoursePrerequisites: build.query({
-      query: ({
-        pageNo,
-        pageSize,
-        sortField = "createDate",
-        sortDir = "desc",
-        masterId,
-      }) => ({
-        url: `/course-prerequisites?pageNo=${pageNo}&pageSize=${pageSize}&sortField=${sortField}&sortDir=${sortDir}&courseId=${masterId}`,
-        method: "GET",
+    getRowsCoursePrerequisites: build.query({
+      query: (enterpriseGetRowsRequest) => ({
+        url: `/course-prerequisites/get-rows`,
+        method: "POST",
+        data: enterpriseGetRowsRequest,
       }),
     }),
     getAllColleges: build.query({
@@ -109,16 +100,11 @@ const UniversityApi = api.injectEndpoints({
         method: "DELETE",
       }),
     }),
-    getPagedCourseSchedule: build.query({
-      query: ({
-        pageNo,
-        pageSize,
-        sortField = "createDate",
-        sortDir = "desc",
-        masterId,
-      }) => ({
-        url: `/course-schedules?pageNo=${pageNo}&pageSize=${pageSize}&sortField=${sortField}&sortDir=${sortDir}&courseId=${masterId}`,
-        method: "GET",
+    getRowsCourseSchedule: build.query({
+      query: (enterpriseGetRowsRequest) => ({
+        url: `/course-schedules/get-rows`,
+        method: "POST",
+        data: enterpriseGetRowsRequest,
       }),
     }),
     updateUser: build.mutation({
@@ -141,12 +127,12 @@ const UniversityApi = api.injectEndpoints({
 export default UniversityApi;
 
 export const {
-  useLazyGetPagedCoursesQuery,
+  useLazyGetRowsCoursesQuery,
   useCreateCourseMutation,
   useUpdateCourseMutation,
   useDeleteCourseMutation,
   useGetAllCoursesQuery,
-  useLazyGetPagedCoursePrerequisitesQuery,
+  useLazyGetRowsCoursePrerequisitesQuery,
   useCreateCoursePrerequisiteMutation,
   useUpdateCoursePrerequisiteMutation,
   useDeleteCoursePrerequisiteMutation,
@@ -156,7 +142,7 @@ export const {
   useCreateCourseScheduleMutation,
   useUpdateCourseScheduleMutation,
   useDeleteCourseScheduleMutation,
-  useLazyGetPagedCourseScheduleQuery,
+  useLazyGetRowsCourseScheduleQuery,
   useUpdateUserMutation,
   useLazyGetUserQuery,
 } = UniversityApi;

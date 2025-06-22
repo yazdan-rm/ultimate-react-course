@@ -131,7 +131,7 @@ function JwtAuthProvider(props) {
           });
           const userData = response?.data;
 
-          handleSignInSuccess(userData, accessToken, xsrfToken);
+          handleSignInSuccess(userData, accessToken);
           return true;
         } catch (error) {
           handleSignInFailure(error);
@@ -209,7 +209,11 @@ function JwtAuthProvider(props) {
               photoURL: userInfo?.picture || "",
               email: user?.email || userInfo?.email || "",
               shortcuts: [],
-              settings: JSON.parse(additionalUserInfo.data.studentUiSetting),
+              settings: JSON.parse(
+                additionalUserInfo?.data?.studentUiSetting
+                  ? additionalUserInfo?.data?.studentUiSetting
+                  : "{}",
+              ),
             },
           });
 

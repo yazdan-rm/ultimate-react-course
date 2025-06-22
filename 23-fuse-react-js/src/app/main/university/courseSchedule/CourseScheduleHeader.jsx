@@ -11,7 +11,7 @@ function CourseScheduleHeader() {
         component="h2"
         className="flex-1 text-3xl md:text-3xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate"
       >
-        تعریف پیش نیاز
+        تعریف برنامه ارائه و امتحان
       </Typography>
       <div className="flex items-center w-full my-5 -mx-10">
         <Breadcrumbs

@@ -60,12 +60,21 @@ export function getEducationalLevelText(value) {
   return EducationalLevelMap[value] || "";
 }
 
+export function getCurrentSemester() {
+  let { jy, jm } = jalaali.toJalaali(new Date());
+  jy = jy - 1000;
+  if ((jm >= 7 && jm < 11) || (jm >= 1 && jm <= 3)) return jy + "1";
+  else if (jm === 11 || jm === 12) return jy + "2";
+  else if (jm >= 4 && jm < 7) return jy + "3";
+  return "-1";
+}
+
 export function generateSemesters() {
   const result = [];
   const today = new Date();
   const { jy } = jalaali.toJalaali(today);
   const startYear = jy - 4; // 4 years before
-  const totalYears = 5; // 4 before + 10 after
+  const totalYears = 5; // 4 before + 5 after
 
   for (let i = totalYears - 1; i >= 0; i--) {
     const academicStart = startYear + i;
@@ -111,7 +120,7 @@ export function getSemesterTitleByCode(code) {
     case "3":
       return `نيمسال (تابستان) ${codeStr}`;
     default:
-      return "کد نيمسال نامعتبر است";
+      return "";
   }
 }
 
