@@ -1,7 +1,7 @@
 import * as React from "react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
 import { toShamsiDate } from "../../../utils/UmsUtils.js";
-import AgGrid from "../../../utils/AgGrid.jsx";
+import AgGrid from "app/shared-components/AgGrid.jsx";
 import { useAppDispatch, useAppSelector } from "app/store/hooks.js";
 import {
   refreshAgGrid,
@@ -10,7 +10,7 @@ import {
 } from "../universitySlice.js";
 import {
   useDeleteCoursePrerequisiteMutation,
-  useLazyGetRowsCoursePrerequisitesQuery,
+  useGetRowsCoursePrerequisitesMutation,
 } from "../UniversityApi.js";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -21,7 +21,7 @@ import { useParams } from "react-router-dom";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 function CoursePrerequisiteTable() {
-  const [trigger] = useLazyGetRowsCoursePrerequisitesQuery();
+  const [trigger] = useGetRowsCoursePrerequisitesMutation();
   const refreshGrid = useAppSelector(selectRefreshGridFlag);
   const dispatch = useAppDispatch();
   const [deleteTrigger] = useDeleteCoursePrerequisiteMutation();

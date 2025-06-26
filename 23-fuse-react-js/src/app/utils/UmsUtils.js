@@ -13,6 +13,22 @@ export function toShamsiDate(isoDateStr) {
   return `${jy}/${jm.toString().padStart(2, "0")}/${jd.toString().padStart(2, "0")}`;
 }
 
+export function getCurrentDateTimeToShamsi() {
+  const date = new Date();
+  const { gy, gm, gd } = {
+    gy: date.getFullYear(),
+    gm: date.getMonth() + 1, // months are 0-based in JS
+    gd: date.getDate(),
+  };
+
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const seconds = date.getSeconds().toString().padStart(2, "0");
+
+  const { jy, jm, jd } = jalaali.toJalaali(gy, gm, gd);
+  return `${hours}:${minutes}:${seconds} - ${jy}/${jm.toString().padStart(2, "0")}/${jd.toString().padStart(2, "0")}`;
+}
+
 export function toLocalTime(isoDateStr) {
   if (!isoDateStr) return "";
   const date = new Date(isoDateStr);
@@ -96,7 +112,7 @@ export function generateSemesters() {
     // Summer semester (optional based on your data)
     result.push({
       code: parseInt(`${codeBase}3`),
-      description: `نيمسال (تابستان) ${codeBase}3`,
+      description: `نيمسال (تابستان) ${academicEnd}-${academicStart}`,
     });
   }
 
@@ -118,7 +134,7 @@ export function getSemesterTitleByCode(code) {
     case "2":
       return `نيمسال دوم سال تحصيلي ${endYear}-${startYear}`;
     case "3":
-      return `نيمسال (تابستان) ${codeStr}`;
+      return `نيمسال (تابستان) ${endYear}-${startYear}`;
     default:
       return "";
   }

@@ -201,6 +201,7 @@ function JwtAuthProvider(props) {
 
           const userModel = UserModel({
             uid: user.sub,
+            preferred_username: userInfo?.preferred_username,
             role:
               user?.resource_access?.["ums-client-id"]?.roles?.[0] || "guest",
             data: {
@@ -214,6 +215,9 @@ function JwtAuthProvider(props) {
                   ? additionalUserInfo?.data?.studentUiSetting
                   : "{}",
               ),
+              university: additionalUserInfo?.data?.university
+                ? additionalUserInfo?.data?.university
+                : "{}",
             },
           });
 

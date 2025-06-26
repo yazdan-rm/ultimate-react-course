@@ -1,13 +1,13 @@
 import * as React from "react";
 import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
-import { useLazyGetRowsCoursesQuery } from "../UniversityApi.js";
+import { useGetRowsCoursesMutation } from "../UniversityApi.js";
 import {
   getEducationalLevelText,
   getGenderText,
   getSemesterTitleByCode,
   toShamsiDate,
 } from "../../../utils/UmsUtils.js";
-import AgGrid from "../../../utils/AgGrid.jsx";
+import AgGrid from "app/shared-components/AgGrid.jsx";
 import { useAppSelector } from "app/store/hooks.js";
 import { selectRefreshGridFlag } from "../universitySlice.js";
 import ActionButtons from "./ActionButtons.jsx";
@@ -15,7 +15,7 @@ import ActionButtons from "./ActionButtons.jsx";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 function CourseTable() {
-  const [trigger] = useLazyGetRowsCoursesQuery();
+  const [trigger] = useGetRowsCoursesMutation();
   const refreshGrid = useAppSelector(selectRefreshGridFlag);
 
   const columnDefs = [

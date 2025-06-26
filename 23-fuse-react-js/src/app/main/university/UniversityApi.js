@@ -2,7 +2,7 @@ import { apiService as api } from "app/store/apiService.js";
 
 const UniversityApi = api.injectEndpoints({
   endpoints: (build) => ({
-    getRowsCourses: build.query({
+    getRowsCourses: build.mutation({
       query: (enterpriseGetRowsRequest) => ({
         url: `/courses/get-rows`,
         method: "POST",
@@ -55,7 +55,7 @@ const UniversityApi = api.injectEndpoints({
         method: "DELETE",
       }),
     }),
-    getRowsCoursePrerequisites: build.query({
+    getRowsCoursePrerequisites: build.mutation({
       query: (enterpriseGetRowsRequest) => ({
         url: `/course-prerequisites/get-rows`,
         method: "POST",
@@ -100,7 +100,7 @@ const UniversityApi = api.injectEndpoints({
         method: "DELETE",
       }),
     }),
-    getRowsCourseSchedule: build.query({
+    getRowsCourseSchedule: build.mutation({
       query: (enterpriseGetRowsRequest) => ({
         url: `/course-schedules/get-rows`,
         method: "POST",
@@ -120,6 +120,13 @@ const UniversityApi = api.injectEndpoints({
         method: "GET",
       }),
     }),
+    getRowsExclusiveCoursesForStd: build.mutation({
+      query: (enterpriseGetRowsRequest) => ({
+        url: `/courses/get-exclusive-courses-for-student`,
+        method: "POST",
+        data: enterpriseGetRowsRequest,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -127,12 +134,12 @@ const UniversityApi = api.injectEndpoints({
 export default UniversityApi;
 
 export const {
-  useLazyGetRowsCoursesQuery,
+  useGetRowsCoursesMutation,
   useCreateCourseMutation,
   useUpdateCourseMutation,
   useDeleteCourseMutation,
   useGetAllCoursesQuery,
-  useLazyGetRowsCoursePrerequisitesQuery,
+  useGetRowsCoursePrerequisitesMutation,
   useCreateCoursePrerequisiteMutation,
   useUpdateCoursePrerequisiteMutation,
   useDeleteCoursePrerequisiteMutation,
@@ -142,7 +149,8 @@ export const {
   useCreateCourseScheduleMutation,
   useUpdateCourseScheduleMutation,
   useDeleteCourseScheduleMutation,
-  useLazyGetRowsCourseScheduleQuery,
+  useGetRowsCourseScheduleMutation,
   useUpdateUserMutation,
   useLazyGetUserQuery,
+  useGetRowsExclusiveCoursesForStdMutation,
 } = UniversityApi;

@@ -1,6 +1,6 @@
 import {
   useDeleteCourseScheduleMutation,
-  useLazyGetRowsCourseScheduleQuery,
+  useGetRowsCourseScheduleMutation,
 } from "../UniversityApi.js";
 import { useAppDispatch, useAppSelector } from "app/store/hooks.js";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -13,12 +13,12 @@ import {
 import { useParams } from "react-router-dom";
 import { showMessage } from "@fuse/core/FuseMessage/fuseMessageSlice.js";
 import { toShamsiDate } from "../../../utils/UmsUtils.js";
-import AgGrid from "../../../utils/AgGrid.jsx";
+import AgGrid from "app/shared-components/AgGrid.jsx";
 import * as React from "react";
 import Button from "@mui/material/Button";
 
 function CourseScheduleTable() {
-  const [trigger] = useLazyGetRowsCourseScheduleQuery();
+  const [trigger] = useGetRowsCourseScheduleMutation();
   const refreshGrid = useAppSelector(selectRefreshGridFlag);
   const dispatch = useAppDispatch();
   const [deleteTrigger] = useDeleteCourseScheduleMutation();

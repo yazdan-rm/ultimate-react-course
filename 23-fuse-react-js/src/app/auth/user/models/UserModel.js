@@ -7,6 +7,7 @@ function UserModel(data) {
   data = data || {};
   return _.defaults(data, {
     uid: "",
+    preferred_username: "",
     role: null, // guest
     data: {
       displayName: "Guest User",
