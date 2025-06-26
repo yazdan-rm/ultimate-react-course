@@ -34,7 +34,7 @@ function ExclusiveCoursesForStdHeader() {
 
         <div className="flex flex-col h-full justify-end">
           <Typography
-            className="font-medium inline-flex w-[160px] justify-between"
+            className="font-medium inline-flex w-[168px] justify-between"
             color="text.secondary"
           >
             <span>زمان:</span>
